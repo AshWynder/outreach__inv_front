@@ -1,0 +1,195 @@
+/* AppHeader.css */
+
+/* --- 1. Base Header Styling --- */
+.app-header {
+    /* Background: Very light almost white */
+    background-color: #ffffff;
+    /* Text Color: Darker gray for readability */
+    color: #424242; /* A slightly softer dark gray than pure black */
+
+    /* Flexbox for alignment: */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    /* Height and padding: slightly taller, more horizontal padding */
+    height: 72px; /* Slightly taller than previous */
+    padding: 0 32px; /* More padding on sides */
+
+    /* Box Shadow: Very subtle, almost imperceptible */
+    box-shadow: none; /* No shadow for a flatter design */
+    border-bottom: 1px solid #e0e0e0; /* Very subtle bottom border for separation */
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* --- 2. Left Group (Menu and Title) --- */
+.header__left-group {
+    display: flex;
+    align-items: center;
+    /* No title in the image, so we'll remove its specific styles or hide it */
+    /* If you still want the title, adjust margin-left as needed */
+}
+
+/* The image doesn't show "OUTREACH INVENTORY" title,
+   so we'll comment out its styles or assume it's removed from JSX.
+   If you want it, uncomment and adjust: */
+/*
+.header__title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-left: 16px;
+    letter-spacing: 0.5px;
+}
+*/
+
+/* --- 3. Center Search Field (This is the most significant change) --- */
+.header__center-search {
+    flex-grow: 1;
+    max-width: 40%; /* Slightly wider search bar */
+    margin: 0 24px; /* Adjust margin to bring it closer to icons if needed */
+}
+
+/* To style the actual MUI TextField component */
+.search-field {
+    width: 100%;
+    /* Override MUI default styling for rounded corners and padding */
+    border-radius: 8px; /* More rounded corners */
+}
+
+/* Specific styling for the filled variant's root element */
+.search-field .MuiFilledInput-root {
+    background-color: #f0f0f0; /* Light gray background for the search input */
+    color: #424242;
+    border-radius: 8px; /* Rounded corners for the input itself */
+    height: 48px; /* Standard height for inputs */
+    padding: 0 16px; /* Adjust padding inside the input */
+    /* Remove default underline of filled variant */
+    &::after, &::before {
+        display: none;
+    }
+}
+
+/* Placeholder and input text color */
+.search-field .MuiFilledInput-input {
+    color: #424242;
+    padding-top: 0 !important; /* Remove extra padding if present */
+    padding-bottom: 0 !important; /* Remove extra padding if present */
+    height: 48px; /* Match the height of the root */
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+/* Styling for the label of the TextField (the "Search" text) */
+.search-field .MuiInputLabel-filled {
+    color: #616161; /* Slightly lighter gray for the label */
+    top: -5px; /* Adjust vertical position */
+    left: 16px; /* Adjust horizontal position */
+}
+/* When focused, the label might need adjustment */
+.search-field .MuiInputLabel-filled.Mui-focused {
+    color: #616161;
+}
+
+
+/* --- 4. Right Actions Group (Icons) --- */
+.header__right-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Space between icons */
+}
+
+/* --- 5. Icon Button Styling --- */
+.header__icon-button {
+    cursor: pointer;
+    /* Match the rounded, subtle background from the image */
+    background-color: #f0f0f0; /* Light gray background */
+    color: #616161; /* Darker icon color for contrast */
+    padding: 8px; /* Increased padding for larger, rounded buttons */
+    border-radius: 50%; /* Fully rounded */
+    transition: background-color 0.2s, color 0.2s;
+    display: flex; /* Ensure icon is centered if it's not a pure MUI icon */
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Fixed width for consistent button size */
+    height: 40px; /* Fixed height for consistent button size */
+}
+
+.header__icon-button:hover {
+    background-color: #e0e0e0; /* Slightly darker gray on hover */
+    color: #333333; /* Darker icon color on hover */
+}
+
+/* Specific styling for the notifications icon (yellow with number) */
+.header__right-actions .notification-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f0f0f0; /* Consistent light gray background */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.header__right-actions .notification-icon-wrapper:hover {
+    background-color: #e0e0e0;
+}
+
+.header__right-actions .notification-count {
+    position: absolute;
+    top: -4px; /* Adjust position */
+    right: -4px; /* Adjust position */
+    background-color: #ffc107; /* Yellow background */
+    color: #333333; /* Dark text for contrast */
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Subtle shadow for the badge */
+    z-index: 1; /* Ensure it's above the icon */
+}
+
+/* Styling for the user profile icon (blue/yellow avatar) */
+.header__right-actions .profile-avatar-wrapper {
+    background-color: #e3f2fd; /* Very light blue background for the avatar group */
+    border-radius: 20px; /* Pill shape */
+    padding: 4px 12px 4px 4px; /* More padding on the right to accommodate text/arrow if needed */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.header__right-actions .profile-avatar-wrapper:hover {
+    background-color: #c5e1fd; /* Slightly darker blue on hover */
+}
+
+.header__right-actions .profile-avatar-wrapper .MuiAvatar-root {
+    /* If you're using MUI Avatar, style it directly */
+    width: 32px;
+    height: 32px;
+    background-color: #ffc107; /* Yellow background for the actual avatar */
+    color: #333333; /* Dark text for initials */
+    font-size: 1rem;
+    font-weight: bold;
+}
+/* If you're using AccountCircleIcon directly */
+.header__right-actions .profile-avatar-wrapper .MuiSvgIcon-root {
+    color: #424242; /* Darker color for the icon */
+    font-size: 24px;
+}
+
+.header__text{
+    letter-spacing: 0.7rem;
+    margin-left: 18px;
+}
