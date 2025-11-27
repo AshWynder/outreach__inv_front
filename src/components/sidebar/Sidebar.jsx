@@ -112,7 +112,7 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openProducts} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ ml: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
             <ListItemButton
               component={NavLink}
@@ -124,7 +124,6 @@ export default function Sidebar() {
                   color: 'white',
                   '& .MuiListItemIcon-root': { color: 'white' },
                   fontWeight: 'medium',
-                  pl: 4,
                 },
               }}
             >
@@ -138,7 +137,7 @@ export default function Sidebar() {
             {/* Nested Item 2: Returns */}
             <ListItemButton
               component={NavLink}
-              to="/products/add"
+              to="/products"
               sx={{
                 '&.active': {
                   // ← This gives blue background when active
@@ -146,10 +145,11 @@ export default function Sidebar() {
                   color: 'white',
                   '& .MuiListItemIcon-root': { color: 'white' },
                   fontWeight: 'medium',
-                  pl: 4,
                 },
               }}
+              end
             >
+              {' '}
               <ListItemIcon>
                 <FormatListNumberedRtlIcon fontSize="small" />
               </ListItemIcon>
@@ -169,9 +169,21 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openSuppliers} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ ml: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/suppliers/add"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               {' '}
               {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
@@ -181,7 +193,20 @@ export default function Sidebar() {
             </ListItemButton>
 
             {/* Nested Item 2: Returns */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/suppliers"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+              end
+            >
               <ListItemIcon>
                 <FormatListNumberedRtlIcon fontSize="small" />
               </ListItemIcon>
@@ -200,9 +225,21 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openCustomers} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ ml: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/customers/add"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               {' '}
               {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
@@ -212,7 +249,20 @@ export default function Sidebar() {
             </ListItemButton>
 
             {/* Nested Item 2: Returns */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/customers"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+              end
+            >
               <ListItemIcon>
                 <FormatListNumberedRtlIcon fontSize="small" />
               </ListItemIcon>
@@ -232,9 +282,21 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openOrders} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ pl: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/order/add"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               {' '}
               {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
@@ -244,7 +306,19 @@ export default function Sidebar() {
             </ListItemButton>
 
             {/* Nested Item 2: Returns */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/orders/"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               <ListItemIcon>
                 <FormatListNumberedRtlIcon fontSize="small" />
               </ListItemIcon>
@@ -267,9 +341,21 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openPurchase} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ ml: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/purchase-orders/add"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               {' '}
               {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
@@ -279,7 +365,20 @@ export default function Sidebar() {
             </ListItemButton>
 
             {/* Nested Item 2: Returns */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/purchase-orders"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+              end
+            >
               <ListItemIcon>
                 <FormatListNumberedRtlIcon fontSize="small" />
               </ListItemIcon>
@@ -300,9 +399,21 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openUsers} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ ml: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/users/add"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               {' '}
               {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
@@ -312,7 +423,20 @@ export default function Sidebar() {
             </ListItemButton>
 
             {/* Nested Item 2: Returns */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/users"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+              end
+            >
               <ListItemIcon>
                 <FormatListNumberedRtlIcon fontSize="small" />
               </ListItemIcon>
@@ -332,9 +456,21 @@ export default function Sidebar() {
         </ListItemButton>
         {/* 5. Collapse component for the nested options */}
         <Collapse in={openAccount} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List component="div" sx={{ ml: 4 }} disablePadding>
             {/* Nested Item 1: Invoices */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/user-profile"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               {' '}
               {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
@@ -344,7 +480,19 @@ export default function Sidebar() {
             </ListItemButton>
 
             {/* Nested Item 2: Returns */}
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton
+              component={NavLink}
+              to="/logout"
+              sx={{
+                '&.active': {
+                  // ← This gives blue background when active
+                  bgcolor: 'teal.500',
+                  color: 'white',
+                  '& .MuiListItemIcon-root': { color: 'white' },
+                  fontWeight: 'medium',
+                },
+              }}
+            >
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>

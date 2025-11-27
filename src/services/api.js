@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8001/ap/v1',
+  baseURL: '/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export const api = {
       return axiosInstance.get(`/customers/${id}`);
     },
     getCustomers() {
-      return axiosInstance.get();
+      return axiosInstance.get('/customers');
     },
     createCustomer(data) {
       return axiosInstance.post(data);
@@ -146,4 +146,4 @@ export const api = {
   },
 };
 
-export default axiosInstance;
+export default api;

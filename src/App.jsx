@@ -5,11 +5,15 @@ import Header from './components/header/Header.jsx';
 import Box from '@mui/material/Box';
 import Sidebar from './components/sidebar/Sidebar.jsx';
 import {CssBaseline} from '@mui/material';
-import AddProduct from './pages/AddProduct.jsx';
-import AddSupplier from './pages/AddSupplier.jsx';
-import AddCustomer from './pages/AddCustomer.jsx';
+import SupplierForm from './pages/supplier/supplierForm.jsx';
+import AddCustomer from './pages/customer/AddCustomer.jsx';
 import AddOrder from './pages/AddOrder.jsx';
 import AddPurchaseOrder from './pages/AddPurchaseOrder.jsx';
+import ViewProducts from "./pages/product/ViewProducts.jsx";
+import ProductState from "./pages/product/productState.jsx";
+import ViewSuppliers from "./pages/supplier/ViewSuppliers.jsx";
+import SupplierState from "./pages/supplier/supplierState.jsx";
+import ViewCustomers from "./pages/customer/ViewCustomers.jsx";
 
 function App() {
   return (
@@ -31,16 +35,23 @@ function App() {
             overflowY: 'auto',
             bgcolor: '#f5f5f5',
             p: 3,
+            justifyContent: 'center',
+            minHeight: '100vh'
           }}
         >
 
           <Routes>
             {/*<Route path='/' element={<Dashboard />} />*/}
 
-            {/*<Route path='/products' element={<ViewProducts />} />*/}
-            <Route path="/products/add" element={<AddProduct/>}/>
+            <Route path='/products' element={<ViewProducts />} />
+            <Route path="/products/add" element={<ProductState/>}/>
+            <Route path="/products/edit/:id" element={<ProductState/>}/>
 
-            {/*<Route path='/customers/' element={<ViewCustomers />} />*/}
+            <Route path="/suppliers" element={<ViewSuppliers/>}/>
+            <Route path="/suppliers/add" element={<SupplierState/>}/>
+            <Route path="/suppliers/edit/:id" element={<SupplierState/>}/>
+
+            <Route path='/customers/' element={<ViewCustomers />} />
             <Route path="/customers/add" element={<AddCustomer/>}/>
 
             {/*<Route path='/orders' element={<ViewOrders />} />*/}
@@ -51,11 +62,14 @@ function App() {
               path="/purchase-orders/add"
               element={<AddPurchaseOrder/>}
             />
+
+            {/*<Route path='/users/add' element={<AddUser/>} />*/}
+            {/*<Route path='/users' element={<ViewUsers/>} />*/}
           </Routes>
 
         </Box>
         {/*<AddProduct/>*/}
-        {/*<AddSupplier />*/}
+        {/*<SupplierForm />*/}
         {/*<AddCustomer />*/}
         {/*<AddOrder />*/}
         {/*<SelectText />*/}

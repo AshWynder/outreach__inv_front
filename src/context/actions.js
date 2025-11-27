@@ -10,7 +10,8 @@ export const actions = {
     dispatch({type: 'SET_LOADING', payload: true});
     try {
       const response = await api.products.getProducts();
-      dispatch({type: 'SET_PRODUCTS', payload: response.data});
+      console.log(response);
+      dispatch({type: 'SET_PRODUCTS', payload: response.data.data.data});
     } catch (err) {
       errorHandler(dispatch, err?.message);
     }
@@ -55,7 +56,8 @@ export const actions = {
     dispatch({type: 'SET_LOADING', payload: true});
     try {
       const response = await api.suppliers.getSuppliers();
-      dispatch({type: 'SET_SUPPLIERS', payload: response.data});
+      console.log(response)
+      dispatch({type: 'SET_SUPPLIERS', payload: response.data.data.data});
     } catch (err) {
       errorHandler(dispatch, err?.message);
     }

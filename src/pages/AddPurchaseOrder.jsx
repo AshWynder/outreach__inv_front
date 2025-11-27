@@ -68,10 +68,11 @@ const Tab = ({ label, active, onClick }) => (
       cursor: 'pointer',
       fontSize: '14px',
       fontWeight: 500,
-      color: active ? '#1976d2' : '#666',
+      color: active ? '#009688' : '#666',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
-      transition: 'all 0.3s'
+      transition: 'all 0.3s',
+      borderColor: active ? '#009688': ''
     }}
     onMouseEnter={(e) => !active && (e.target.style.backgroundColor = '#f0f0f0')}
     onMouseLeave={(e) => !active && (e.target.style.backgroundColor = 'transparent')}
@@ -242,9 +243,9 @@ export default function AddPurchaseOrder() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+    <div style={{ width: '80%', margin: '0 auto', padding: '24px' }}>
       <Paper elevation={3}>
-        <Box sx={{ bgcolor: '#1976d2', color: 'white', p: 3, borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ bgcolor: '#009688', color: 'white', p: 3, borderBottom: 1, borderColor: 'divider' }}>
           <Typography variant="h4" sx={{ fontWeight: 600, marginBottom: '8px' }}>
             Register Supplier
           </Typography>
@@ -339,16 +340,16 @@ export default function AddPurchaseOrder() {
           {/* Navigation Buttons */}
           {/* Navigation Buttons */}
           <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e0e0e0' }}>
-            <Box  sx={{bgcolor: '#1976d2', color: '#fff', p: 3, borderRadius: '1rem', height: '25px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(Math.max(0, activeTab - 1))} disabled={activeTab === 0}>
+            <Box  sx={{bgcolor: '#009688', color: '#fff', p: 3, borderRadius: '1rem', height: '25px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(Math.max(0, activeTab - 1))} disabled={activeTab === 0}>
               Previous
             </Box>
             <Box sx={{ display: 'flex', gap: 2 }}>
               {activeTab < 3 ? (
-                <Box sx={{bgcolor: '#1976d2', color: '#fff', p: 3, borderRadius: '1rem', height: '25px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(Math.min(4, activeTab + 1))}>
+                <Box sx={{bgcolor: '#009688', color: '#fff', p: 3, borderRadius: '1rem', height: '25px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }} onClick={() => setActiveTab(Math.min(4, activeTab + 1))}>
                   Next
                 </Box>
               ) : (
-                <Button variant="contained" color="success" type="submit" name='submit'>
+                <Button variant="outlined" color="success" type="submit" name='submit'>
                   Submit Form
                 </Button>
               )}
