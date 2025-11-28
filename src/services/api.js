@@ -32,6 +32,9 @@ export const api = {
     deleteProduct(id) {
       return axiosInstance.delete(`/products/${id}`);
     },
+    getStats(){
+      return axiosInstance.get('products/dashboard/stats');
+    }
   },
 
   // suppliers

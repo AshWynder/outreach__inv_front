@@ -132,7 +132,7 @@ export default function ViewProducts() {
                   <TableCell sx={{textAlign: 'center'}}>{product?.inventory.quantity_on_hand}</TableCell>
                   <TableCell align="center">
                     <IconButton
-                      href={`/products/edit/${product._id}`}
+                      href={`/products/edit/${product?._id}`}
                       color="teal"
                     >
                       <Edit />

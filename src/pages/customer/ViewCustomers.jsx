@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useApp } from '../../context/AppContext.jsx';
-import { actions } from '../../context/actions.js';
+import React, {useEffect, useState} from 'react';
+import {useApp} from '../../context/AppContext.jsx';
+import {actions} from '../../context/actions.js';
 import DeleteModal from '../../components/DeleteModal.jsx';
 import {
   Alert,
@@ -22,9 +22,9 @@ import Edit from '@mui/icons-material/EditOutlined';
 import Delete from '@mui/icons-material/DeleteOutlineOutlined';
 
 export default function ViewCustomers() {
-  const { state, dispatch } = useApp();
+  const {state, dispatch} = useApp();
 
-  const { customers, loading, error } = state;
+  const {customers, loading, error} = state;
 
   // modal state
   const [deleteModal, setDeleteModal] = useState({
@@ -34,11 +34,11 @@ export default function ViewCustomers() {
   });
 
   const openDeleteModal = (id, companyName) => {
-    setDeleteModal({ open: true, id: id, name: companyName });
+    setDeleteModal({open: true, id: id, name: companyName});
   };
 
   const closeDeleteModal = () => {
-    setDeleteModal({ open: false, id: null, name: '' });
+    setDeleteModal({open: false, id: null, name: ''});
   };
 
   const confirmDelete = async () => {
@@ -62,7 +62,7 @@ export default function ViewCustomers() {
           gap: 3,
         }}
       >
-        <CircularProgress size={60} thickness={4} color={'primary'} />
+        <CircularProgress size={60} thickness={4} color={'primary'}/>
         <Typography variant={'h6'} color={'text.secondary'}>
           Loading customer details....
         </Typography>
@@ -73,7 +73,7 @@ export default function ViewCustomers() {
   console.log(customers);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{p: 3}}>
       <Box
         sx={{
           display: 'flex',
@@ -93,16 +93,16 @@ export default function ViewCustomers() {
           sx={{
             bgcolor: 'teal.500',
             color: 'white',
-            '&:hover': { bgcolor: 'teal.600' },
+            '&:hover': {bgcolor: 'teal.600'},
           }}
         >
-          <Add />
+          <Add/>
         </IconButton>
       </Box>
 
       {/* Error State */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{mb: 2}}>
           {error}
         </Alert>
       )}
@@ -119,7 +119,7 @@ export default function ViewCustomers() {
             gap: 3,
           }}
         >
-          <CircularProgress size={60} thickness={4} color={'primary'} />
+          <CircularProgress size={60} thickness={4} color={'primary'}/>
           <Typography variant={'h6'} color={'text.secondary'}>
             Loading customer details....
           </Typography>
@@ -131,27 +131,33 @@ export default function ViewCustomers() {
         <TableContainer component={Paper} elevation={2}>
           <Table>
             <TableHead>
-              <TableRow sx={{ bgcolor: 'teal.500' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+              <TableRow sx={{bgcolor: 'teal.500'}}>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
                   Full Name
                 </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
                   ID Number
                 </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
+                  Phone Number
+                </TableCell>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
+                  Email
+                </TableCell>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
                   County
                 </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
                   Credit Limit
                 </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
                   Credit Available
                 </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+                <TableCell sx={{color: 'white', fontWeight: 'bold'}}>
                   Total Orders
                 </TableCell>
                 <TableCell
-                  sx={{ color: 'white', fontWeight: 'bold' }}
+                  sx={{color: 'white', fontWeight: 'bold'}}
                   align="right"
                 >
                   Actions
@@ -161,28 +167,30 @@ export default function ViewCustomers() {
             <TableBody>
               {customers.map((customer) => (
                 <TableRow key={customer?._id} hover>
-                  <TableCell>{customer?.company_name}</TableCell>
-                  <TableCell>{customer?.contact_info.name}</TableCell>
-                  <TableCell>{customer?.contact_info.email}</TableCell>
+                  <TableCell>{customer?.personal_info.full_name}</TableCell>
+                  <TableCell>{customer?.personal_info.id_number}</TableCell>
                   <TableCell>{customer?.contact_info.phone}</TableCell>
+                  <TableCell>{customer?.contact_info.email}</TableCell>
                   <TableCell>
-                    Kshs. {customer?.financial.credit_available}
+                    {customer?.address.county}
                   </TableCell>
-                  <TableCell>Kshs. {customer?.financial.credit_used}</TableCell>
+                  <TableCell>Kshs. {customer?.financial.credit_limit}</TableCell>
+                  <TableCell>Kshs. {customer?.financial.credit_available}</TableCell>
+                  <TableCell align='center'>{customer?.statistics.total_orders}</TableCell>
                   <TableCell align="center">
                     <IconButton
-                      href={`/customers/edit/${customer._id}`}
+                      href={`/customers/edit/${customer?._id}`}
                       color="teal"
                     >
-                      <Edit />
+                      <Edit/>
                     </IconButton>
                     <IconButton
                       onClick={() =>
-                        openDeleteModal(customer._id, customer.company_name)
+                        openDeleteModal(customer?._id, customer?.company_name)
                       }
                       color="error"
                     >
-                      <Delete />
+                      <Delete/>
                     </IconButton>
                   </TableCell>
                 </TableRow>

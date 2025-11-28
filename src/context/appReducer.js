@@ -1,5 +1,6 @@
 export const initialState = {
   products: [],
+  stats: [],
   suppliers: [],
   customers: [],
   orders: [],
@@ -28,6 +29,13 @@ export function appReducer(state, action) {
     // api calling
     case 'SET_PRODUCTS':
       return { ...state, products: action.payload, loading: false };
+
+    case 'SET_STATS':
+      return {
+        ...state,
+        stats: action.payload,
+        loading: false,
+      };
 
     case 'ADD_PRODUCT':
       return {
@@ -178,7 +186,7 @@ export function appReducer(state, action) {
         loading: false,
       };
 
-      // users
+    // users
     // api calling
     case 'SET_USERS':
       return { ...state, users: action.payload, loading: false };
@@ -194,9 +202,7 @@ export function appReducer(state, action) {
       return {
         ...state,
         users: state.users.map((user) => {
-          user._id === action.payload._id
-            ? action.payload
-            : user;
+          user._id === action.payload._id ? action.payload : user;
         }),
         loading: false,
       };
@@ -204,9 +210,7 @@ export function appReducer(state, action) {
     case 'DELETE_USER':
       return {
         ...state,
-        users: state.users.filter(
-          (user) => user._id !== action.payload
-        ),
+        users: state.users.filter((user) => user._id !== action.payload),
         loading: false,
       };
 

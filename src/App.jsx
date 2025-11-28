@@ -1,80 +1,58 @@
-import {Route, Routes} from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import React from 'react';
-import Header from './components/header/Header.jsx';
-import Box from '@mui/material/Box';
-import Sidebar from './components/sidebar/Sidebar.jsx';
-import {CssBaseline} from '@mui/material';
-import SupplierForm from './pages/supplier/supplierForm.jsx';
-import AddCustomer from './pages/customer/AddCustomer.jsx';
 import AddOrder from './pages/AddOrder.jsx';
-import AddPurchaseOrder from './pages/AddPurchaseOrder.jsx';
-import ViewProducts from "./pages/product/ViewProducts.jsx";
-import ProductState from "./pages/product/productState.jsx";
-import ViewSuppliers from "./pages/supplier/ViewSuppliers.jsx";
-import SupplierState from "./pages/supplier/supplierState.jsx";
-import ViewCustomers from "./pages/customer/ViewCustomers.jsx";
+import ViewProducts from './pages/product/ViewProducts.jsx';
+import ProductState from './pages/product/productState.jsx';
+import ViewSuppliers from './pages/supplier/ViewSuppliers.jsx';
+import SupplierState from './pages/supplier/supplierState.jsx';
+import ViewCustomers from './pages/customer/ViewCustomers.jsx';
+import CustomerState from './pages/customer/customerState.jsx';
+import PurchaseorderState from './pages/purchaseOrder/purchaseOrderState.jsx';
+import ViewPurchaseorders from './pages/purchaseOrder/ViewPurchaseorders.jsx';
+import Dashboard from './components/Dashboard.jsx';
+import SignUp from './pages/SignUp.jsx';
+
+import Layout from './components/Layout.jsx';
+import { CssBaseline } from '@mui/material';
+import AuthLayout from './components/AuthLayout.jsx';
+import LoginPage from "./pages/login.jsx";
 
 function App() {
   return (
-    <>
-      <CssBaseline/>
-      <Header/>
-      <Box
-        sx={{
-          display: 'flex',
-        }}
-      >
-        <Sidebar/>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Dashboard />} />
 
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            display: 'flex',
-            overflowY: 'auto',
-            bgcolor: '#f5f5f5',
-            p: 3,
-            justifyContent: 'center',
-            minHeight: '100vh'
-          }}
-        >
+        <Route path="/products" element={<ViewProducts />} />
+        <Route path="/products/add" element={<ProductState />} />
+        <Route path="/products/edit/:id" element={<ProductState />} />
 
-          <Routes>
-            {/*<Route path='/' element={<Dashboard />} />*/}
+        <Route path="/suppliers" element={<ViewSuppliers />} />
+        <Route path="/suppliers/add" element={<SupplierState />} />
+        <Route path="/suppliers/edit/:id" element={<SupplierState />} />
 
-            <Route path='/products' element={<ViewProducts />} />
-            <Route path="/products/add" element={<ProductState/>}/>
-            <Route path="/products/edit/:id" element={<ProductState/>}/>
+        <Route path="/customers/" element={<ViewCustomers />} />
+        <Route path="/customers/add" element={<CustomerState />} />
+        <Route path="/customers/edit/:id" element={<CustomerState />} />
 
-            <Route path="/suppliers" element={<ViewSuppliers/>}/>
-            <Route path="/suppliers/add" element={<SupplierState/>}/>
-            <Route path="/suppliers/edit/:id" element={<SupplierState/>}/>
+        {/*<Route path='/orders' element={<ViewOrders />} />*/}
+        <Route path="/orders/add" element={<AddOrder />} />
 
-            <Route path='/customers/' element={<ViewCustomers />} />
-            <Route path="/customers/add" element={<AddCustomer/>}/>
-
-            {/*<Route path='/orders' element={<ViewOrders />} />*/}
-            <Route path="/orders/add" element={<AddOrder/>}/>
-
-            {/*<Route path='/purchase-orders/' element={<ViewPurchaseorders />} />*/}
-            <Route
-              path="/purchase-orders/add"
-              element={<AddPurchaseOrder/>}
-            />
-
-            {/*<Route path='/users/add' element={<AddUser/>} />*/}
-            {/*<Route path='/users' element={<ViewUsers/>} />*/}
-          </Routes>
-
-        </Box>
-        {/*<AddProduct/>*/}
-        {/*<SupplierForm />*/}
-        {/*<AddCustomer />*/}
-        {/*<AddOrder />*/}
-        {/*<SelectText />*/}
-      </Box>
-    </>
+        <Route path="/purchase-orders/" element={<ViewPurchaseorders />} />
+        <Route path="/purchase-orders/add" element={<PurchaseorderState />} />
+        <Route
+          path="/purchase-orders/edit/:id"
+          element={<PurchaseorderState />}
+        />
+        {/*<Route path='/users/add' element={<AddUser/>} />*/}
+        {/*<Route path='/users' element={<ViewUsers/>} />*/}
+      </Route>
+      <Route element={<AuthLayout />}>
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
+    </Routes>
   );
 }
 

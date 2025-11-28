@@ -5,13 +5,16 @@ import './index.css';
 import App from './App.jsx';
 import {ThemeProvider, createTheme, extendTheme} from '@mui/material';
 import { AppProvider } from './context/AppContext.jsx';
-import {teal} from "@mui/material/colors";
+import {teal, orange, red, blue} from "@mui/material/colors";
 
 const theme = extendTheme({
   colorSchemes: {
     light: {
       palette: {
         teal: teal,
+        orange: orange,
+        red: red,
+        blue: blue,
       },
     },
   },

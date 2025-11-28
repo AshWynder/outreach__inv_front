@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from "dayjs";
 
 // Mock Material-UI components with similar styling
 const Box = ({ children, sx = {}, component = 'div', ...props }) => {
@@ -174,8 +178,13 @@ const TextField = ({
           fontSize: '16px',
           border: '1px solid #ccc',
           borderRadius: '4px',
-          '&.Mui-focused': { fontSize: '0.85rem', borderColor: '#009688' },
-          '&.MuiInputLabel-shrink': { fontSize: '0.85rem' },
+          outline: 'none',
+          transition: 'all 0.2s ease',
+          color: '#212121',
+          ':focus': {
+            border: '2px solid #009688',
+            padding: '11px',
+          },
         }}
       />
     )}
@@ -272,9 +281,14 @@ function TabPanel({ children, value, index }) {
   );
 }
 
-export default function AddCustomer() {
-  const [activeTab, setActiveTab] = useState(0);
-  const [formData, setFormData] = useState({
+export default function ProfessionalForm({
+  initialData,
+  onSubmit,
+  fromEdit,
+  title,
+  submitLabel,
+}) {
+  const defaultForm = {
     firstName: '',
     lastName: '',
     idNumber: '',
@@ -293,7 +307,39 @@ export default function AddCustomer() {
     creditUsed: '',
     creditAvailable: '',
     discountPercentage: '',
-  });
+  };
+
+  const [activeTab, setActiveTab] = useState(0);
+  const [formData, setFormData] = useState(defaultForm);
+
+  useEffect(() => {
+    if(fromEdit && initialData){
+      const flattened = {
+        firstName: initialData.personal_info?.first_name || '',
+        lastName: initialData.personal_info?.last_name || '',
+        idNumber: initialData.personal_info?.id_number || '',
+        dateOfBirth: initialData.personal_info?.date_of_birth || '',
+        gender: initialData.personal_info?.gender || '',
+        email: initialData.contact_info?.email || '',
+        phone: initialData.contact_info?.phone || '',
+        altPhone: initialData.contact_info?.alt_phone || '',
+        poBox: initialData.contact_info?.po_box || '',
+        street: initialData.address?.street || '',
+        building: initialData.address?.building || '',
+        city: initialData.address?.city || '',
+        postalCode: initialData.address?.postal_code || '',
+        country: initialData.address?.country || '',
+        creditLimit: initialData.financial?.credit_limit || '',
+        creditUsed: initialData.financial?.credit_used || '',
+        creditAvailable: initialData.financial?.credit_available || '',
+        discountPercentage: initialData.financial?.discount_percentage || '',
+      };
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(flattened);
+    } else {
+      setFormData(initialData || defaultForm);
+    }
+  }, [initialData, fromEdit]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -305,12 +351,7 @@ export default function AddCustomer() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(e.target);
-    if (e.target.name === 'submit') {
-      console.log('Form Data:', formData);
-
-      alert('Form submitted successfully! Check console for data.');
-    }
+   onSubmit(formData);
   };
 
   return (
@@ -329,7 +370,7 @@ export default function AddCustomer() {
             variant="h4"
             sx={{ fontWeight: 600, marginBottom: '8px' }}
           >
-            Register Customer
+            {title}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9 }}>
             Please fill in all required information across the tabs
@@ -383,22 +424,26 @@ export default function AddCustomer() {
                 <TextField
                   fullWidth
                   label="ID Number"
-                  name="name"
-                  value={formData.name}
+                  name="idNumber"
+                  value={formData.idNumber}
                   onChange={handleInputChange}
                   required
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
-                <TextField
-                  fullWidth
-                  label="Date of Birth"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                  required
-                  type="date"
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Select date"
+                    value={dayjs(formData.dateOfBirth)}
+                    onChange={handleInputChange}
+                    format="YYYY-MM-DD"
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      }
+                    }}
+                  />
+                </LocalizationProvider>
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
                 <Select
@@ -416,7 +461,7 @@ export default function AddCustomer() {
             </Grid>
           </TabPanel>
 
-          {/* Tab 2: inventory */}
+          {/* Tab 2: contact info */}
           <TabPanel value={activeTab} index={1}>
             <Grid
               container
@@ -468,7 +513,7 @@ export default function AddCustomer() {
             </Grid>
           </TabPanel>
 
-          {/* Tab 3: dimensions */}
+          {/* Tab 3: address */}
           <TabPanel value={activeTab} index={2}>
             <Grid
               container
@@ -486,7 +531,6 @@ export default function AddCustomer() {
                   name="street"
                   value={formData.street}
                   onChange={handleInputChange}
-                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -496,7 +540,6 @@ export default function AddCustomer() {
                   name="building"
                   value={formData.building}
                   onChange={handleInputChange}
-                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -506,7 +549,6 @@ export default function AddCustomer() {
                   name="city"
                   value={formData.city}
                   onChange={handleInputChange}
-                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -516,7 +558,6 @@ export default function AddCustomer() {
                   name="postalCode"
                   value={formData.postalCode}
                   onChange={handleInputChange}
-                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -526,7 +567,6 @@ export default function AddCustomer() {
                   name="country"
                   value={formData.country}
                   onChange={handleInputChange}
-                  type="number"
                 />
               </Grid>
             </Grid>
@@ -568,6 +608,16 @@ export default function AddCustomer() {
                   name="creditAvailable"
                   value={formData.creditAvailable}
                   onChange={handleInputChange}
+                />
+              </Grid>
+              <Grid item xs={12} sx={{ width: '60%' }}>
+                <TextField
+                  fullWidth
+                  label="Discount in Percentage"
+                  name="discount"
+                  value={formData.discountPercentage}
+                  onChange={handleInputChange}
+                  type='number'
                 />
               </Grid>
             </Grid>
@@ -625,7 +675,7 @@ export default function AddCustomer() {
                   type="submit"
                   name="submit"
                 >
-                  Submit Form
+                  {submitLabel}
                 </Button>
               )}
             </Box>

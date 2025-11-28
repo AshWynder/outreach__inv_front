@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 // Mock Material-UI components with similar styling
 const Box = ({ children, sx = {}, component = 'div', ...props }) => {
@@ -158,6 +158,7 @@ const TextField = ({
           borderRadius: '4px',
           fontFamily: 'inherit',
           resize: 'vertical',
+          outline: 'none',
         }}
       />
     ) : (
@@ -313,9 +314,44 @@ export default function ProfessionalForm({
   };
 
   console.log(initialData);
-  const [formData, setFormData] = useState(initialData || defaultForm);
-
+  const [formData, setFormData] = useState(defaultForm);
   const [activeTab, setActiveTab] = useState(0);
+
+  useEffect(() => {
+    if (fromEdit && initialData) {
+      const flattened = {
+        name: initialData.name || '',
+        description: initialData.description || '',
+        costPrice: initialData.pricing?.cost_price || '',
+        sellingPrice: initialData.pricing?.selling_price || '',
+        vat: initialData.pricing?.vat || '',
+        discountPercentage: initialData.pricing?.discount_percentage || '',
+        quantityOnHand: initialData.inventory?.quantity_on_hand || '',
+        quantityReserved: initialData.inventory?.quantity_reserved || '',
+        reorderLevel: initialData.inventory?.reorder_level || '',
+        reorderQuantity: initialData.inventory?.reorder_quantity || '',
+        unitOfMeasure: initialData.inventory?.unit_of_measure || '',
+        length: initialData.dimensions?.length || '',
+        width: initialData.dimensions?.width || '',
+        height: initialData.dimensions?.height || '',
+        unit: initialData.dimensions?.unit || '',
+        processor: initialData.custom_attributes?.processor || '',
+        ram: initialData.custom_attributes?.ram || '',
+        storage: initialData.custom_attributes?.storage || '',
+        screenSize: initialData.custom_attributes?.screen_size || '',
+        brand: initialData.brand || '',
+        model: initialData.model || '',
+        color: initialData.color || '',
+        weight: initialData.weight || '',
+        category: initialData.category || '',
+        supplier: initialData.supplier || '',
+      };
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(flattened);
+    } else {
+      setFormData(initialData || defaultForm);
+    }
+  }, [initialData, fromEdit]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -392,6 +428,7 @@ export default function ProfessionalForm({
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
                 <TextField
                   fullWidth
+                  multiline
                   label="Description"
                   name="description"
                   value={formData.description}
@@ -404,7 +441,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Cost Price"
                   name="costPrice"
-                  value={fromEdit ? formData.pricing.cost_price : formData.costPrice}
+                  value={formData.costPrice}
                   onChange={handleInputChange}
                   required
                 />
@@ -414,7 +451,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Selling Price"
                   name="sellingPrice"
-                  value={fromEdit ? formData.pricing.selling_price : formData.sellingPrice}
+                  value={formData.sellingPrice}
                   onChange={handleInputChange}
                   required
                 />
@@ -424,7 +461,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="VAT"
                   name="vat"
-                  value={fromEdit ? formData.pricing.vat : formData.vat}
+                  value={formData.vat}
                   onChange={handleInputChange}
                   InputLabelProps={{ shrink: true }}
                 />
@@ -434,7 +471,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Discount in Percentage"
                   name="discountPercentage"
-                  value={fromEdit ? formData.pricing.discount_percentage : formData.discountPercentage}
+                  value={formData.discountPercentage}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -457,7 +494,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Quantity On Hand"
                   name="quantityOnHand"
-                  value={fromEdit ? formData.inventory.quantity_on_hand : formData.quantityOnHand}
+                  value={formData.quantityOnHand}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -466,7 +503,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Quantity Reserved"
                   name="quantityReserved"
-                  value={fromEdit ? formData.inventory.quantity_reserved : formData.quantityReserved}
+                  value={formData.quantityReserved}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -475,7 +512,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Re-order Level"
                   name="reorderLevel"
-                  value={fromEdit ? formData.inventory.reorder_level : formData.reorderLevel}
+                  value={formData.reorderLevel}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -484,7 +521,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Re-order Quantity"
                   name="reorderQuantity"
-                  value={fromEdit ? formData.inventory.reorder_quantity : formData.reorderQuantity}
+                  value={formData.reorderQuantity}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -507,7 +544,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Length"
                   name="length"
-                  value={fromEdit ? formData.dimensions.length : formData.length}
+                  value={formData.length}
                   onChange={handleInputChange}
                   type="number"
                 />
@@ -517,7 +554,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Width"
                   name="width"
-                  value={fromEdit ? formData.dimensions.width : formData.width}
+                  value={formData.width}
                   onChange={handleInputChange}
                   type="number"
                 />
@@ -527,7 +564,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Height"
                   name="height"
-                  value={fromEdit ? formData.dimensions.width : formData.width}
+                  value={formData.width}
                   onChange={handleInputChange}
                   type="number"
                 />
@@ -536,7 +573,7 @@ export default function ProfessionalForm({
                 <Select
                   fullWidth
                   name="unit"
-                  value={fromEdit ? formData.dimensions.unit : formData.unit}
+                  value={formData.unit}
                   onChange={handleInputChange}
                   label="Unit of Measurement"
                 >
@@ -569,7 +606,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Processor Name"
                   name="processor"
-                  value={fromEdit ? formData.custom_attributes.processor : formData.processor}
+                  value={formData.processor}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -578,7 +615,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="RAM type"
                   name="ram"
-                  value={fromEdit ? formData.custom_attributes.ram : formData.ram}
+                  value={formData.ram}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -587,7 +624,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Storage type"
                   name="storage"
-                  value={fromEdit ? formData.custom_attributes.storage : formData.storage}
+                  value={formData.storage}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -596,7 +633,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Screen Size"
                   name="screenSize"
-                  value={fromEdit ? formData.custom_attributes.screen_size : formData.screenSize}
+                  value={formData.screenSize}
                   onChange={handleInputChange}
                 />
               </Grid>

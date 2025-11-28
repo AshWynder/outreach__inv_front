@@ -17,6 +17,17 @@ export const actions = {
     }
   },
 
+  async fetchProductStats(dispatch){
+    dispatch({type: 'SET_LOADING', payload: true});
+    try {
+      const response = await api.products.getStats();
+      console.log(response);
+      dispatch({type: 'SET_STATS', payload: response.data.data});
+    } catch (err) {
+      errorHandler(dispatch, err?.message);
+    }
+  },
+
   async createProduct(dispatch, data) {
     dispatch({type: 'SET_LOADING', payload: true});
 
@@ -102,7 +113,8 @@ export const actions = {
     dispatch({type: 'SET_LOADING', payload: true});
     try {
       const response = await api.customers.getCustomers();
-      dispatch({type: 'SET_CUSTOMERS', payload: response.data});
+      console.log(response);
+      dispatch({type: 'SET_CUSTOMERS', payload: response.data.data.data});
     } catch (err) {
       errorHandler(dispatch, err?.message);
     }
@@ -188,11 +200,12 @@ export const actions = {
   },
 
   // PURCHASE ORDERS
-  async fetchPurchaseorder(dispatch) {
+  async fetchPurchaseorders(dispatch) {
     dispatch({type: 'SET_LOADING', payload: true});
     try {
       const response = await api.purchaseOrders.getPurchaseorders();
-      dispatch({type: 'SET_PURCHASEORDERS', payload: response.data});
+      console.log(response);
+      dispatch({type: 'SET_PURCHASEORDERS', payload: response.data.data.data});
     } catch (err) {
       errorHandler(dispatch, err?.message);
     }
