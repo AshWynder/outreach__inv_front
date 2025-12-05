@@ -205,7 +205,7 @@ export const actions = {
     try {
       const response = await api.purchaseOrders.getPurchaseorders();
       console.log(response);
-      dispatch({type: 'SET_PURCHASEORDERS', payload: response.data.data.data});
+      dispatch({type: 'SET_PURCHASEORDERS', payload: response.data.data});
     } catch (err) {
       errorHandler(dispatch, err?.message);
     }
@@ -216,6 +216,7 @@ export const actions = {
 
     try {
       const response = await api.purchaseOrders.createPurchaseorder(data);
+      console.log(response)
       dispatch({type: 'ADD_PURCHASEORDER', payload: response.data});
       return response.data;
     } catch (err) {
@@ -246,6 +247,18 @@ export const actions = {
   },
 
   // USERS
+
+  async fetchLoggedInUser(dispatch){
+    dispatch({type: 'SET_LOADING', payload: true});
+
+    try {
+      const response = await api.users.getLoggedInUser();
+      dispatch({type: 'SET_LOGGED_IN_USER', payload: response.data.data});
+    } catch (err){
+      errorHandler(dispatch, err.message);
+    }
+  },
+
   async fetchUsers(dispatch) {
     dispatch({type: 'SET_LOADING', payload: true});
     try {
@@ -261,12 +274,13 @@ export const actions = {
 
     try {
       const response = await api.users.createUser(data);
-      dispatch({type: 'ADD_SUPPLIER', payload: response.data});
+      dispatch({type: 'ADD_USER', payload: response.data});
       return response.data;
     } catch (err) {
       errorHandler(dispatch, err.message);
     }
   },
+
 
   async updateUser(dispatch, id, data) {
     dispatch({type: 'SET_LOADING', payload: true});
@@ -289,4 +303,29 @@ export const actions = {
       errorHandler(dispatch, err.message);
     }
   },
+
+  // notifications
+  async fetchNotifications(dispatch){
+    dispatch({type: 'SET_LOADING', payload: true});
+
+    try {
+      const response = await api.notifications.getNotifications();
+      console.log(response)
+      dispatch({type: 'SET_NOTIFICATIONS', payload: response.data.data})
+    } catch(err){
+      errorHandler(dispatch, err.message);
+    }
+  },
+
+  async updateNotification(dispatch, id){
+    dispatch({type: 'SET_LOADING', payload: true});
+
+    try {
+      const response = await api.notifications.updateNotification(id);
+      console.log(response);
+      dispatch({type: 'UPDATE_NOTIFICATION', payload: response.data.data});
+    } catch(err){
+      errorHandler(dispatch, err.message);
+    }
+  }
 };

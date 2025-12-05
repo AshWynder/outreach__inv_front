@@ -5,6 +5,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
+import {Chip, IconButton, Snackbar, Alert} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 // Your mock MUI components (unchanged, just kept clean)
 const Box = ({ children, sx = {}, component = 'div', ...props }) => {
@@ -137,6 +140,7 @@ export default function ProfessionalForm({
   submitLabel = 'Create Order',
   suppliers = [],
   products = [], // ← [{ _id, name, sku? }]
+  purchaseError,
 }) {
   console.log(products);
   console.log(suppliers);
@@ -146,13 +150,17 @@ export default function ProfessionalForm({
   const defaultForm = {
     deliveryDueDate: '',
     supplier: '',
-    product: '',
     quantity: '',
     shippingCost: '',
   };
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState(defaultForm);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   useEffect(() => {
     if (initialData) {
@@ -160,13 +168,11 @@ export default function ProfessionalForm({
       setFormData({
         supplier: initialData.supplier || '',
         product: initialData.items?.productId || '',
-
       });
     } else if (fromEdit && initialData) {
       setFormData({
         deliveryDueDate: initialData.deliveryDueDate || '',
         supplier: initialData.supplier || '',
-        product: initialData.items?.productId || '',
         quantity: initialData.items?.quantity || '',
         shippingCost: initialData.shipping_cost || '',
       });
@@ -189,7 +195,34 @@ export default function ProfessionalForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    const payload = {
+      deliveryDueDate: formData.deliveryDueDate,
+      supplier: formData.supplier,
+      shippingCost: Number(formData.shippingCost) || 0,
+      items: selectedItems.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      })),
+    };
+    console.log(payload);
+    onSubmit(payload);
+
+    if(!purchaseError) {
+      // Show success snackbar
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Purchase order created successfully! Redirecting...');
+      setOpenSnackbar(true);
+
+      // Redirect after 4 seconds (snackbar auto-hides at 4s)
+      setTimeout(() => {
+        navigate('/purchase-orders');
+      }, 5000);
+    } else {
+      setSnackbarSeverity('error');
+      setSnackbarMessage('Failed to create purchase order');
+      setOpenSnackbar(true);
+    }
   };
 
   return (
@@ -233,40 +266,69 @@ export default function ProfessionalForm({
               {/* Product Autocomplete - THE STAR */}
               <Grid item>
                 <Autocomplete
+                  multiple
                   options={products}
                   getOptionLabel={(option) => option.name || ''}
-                  value={
-                    products.find((p) => p._id === formData.product) || null
-                  }
+                  value={selectedItems.map(item => ({
+                    ...item,
+                    _id: item.productId,
+                    name: item.name,
+                    sku: item.sku,
+                    reorderLevel: item.reorderLevel
+                  }))} // array of selected product objects
                   onChange={(event, newValue) => {
-                    if (newValue?._id === 'CREATE_NEW') {
+                    // Handle "Create new" option
+                    const createOption = newValue.find((opt) => opt._id === 'CREATE_NEW');
+                    if (createOption) {
+                      const inputValue = createOption.name.match(/"(.+)"/)?.[1] || '';
                       navigate(
-                        `/products/add?redirect=${encodeURIComponent(location.pathname)}`
+                        `/products/add?name=${encodeURIComponent(inputValue)}&redirect=${encodeURIComponent(location.pathname)}`
                       );
-                    } else {
-                      setFormData({
-                        ...formData,
-                        product: newValue?._id || '',
-                      });
+                      // Remove the "Create" option from selection
+                      setSelectedItems(newValue.filter((opt) => opt._id !== 'CREATE_NEW'));
+                      return;
                     }
+
+                    // Update selected items + set default quantity from reorderLevel
+                    const updatedItems = newValue.map((product) => ({
+                      productId: product._id,
+                      name: product.name,
+                      sku: product.sku || '',
+                      reorderLevel: product.reorderLevel || 1,
+                      quantity: product.reorderLevel || 1, // default here
+                    }));
+
+                    setSelectedItems(updatedItems);
                   }}
-                  isOptionEqualToValue={(option, value) =>
-                    option._id === value?._id
-                  }
+                  isOptionEqualToValue={(option, value) => option._id === value._id}
                   filterOptions={(options, { inputValue }) => {
                     const filtered = options.filter((option) =>
-                      option.name
-                        ?.toLowerCase()
-                        .includes(inputValue.toLowerCase())
+                      option.name?.toLowerCase().includes(inputValue.toLowerCase())
                     );
-                    if (inputValue.trim()) {
+
+                    // Add "Create new" option if user typed something
+                    if (inputValue.trim() && !filtered.some((opt) => opt._id === 'CREATE_NEW')) {
                       filtered.push({
                         _id: 'CREATE_NEW',
                         name: `Create "${inputValue}"`,
                       });
                     }
+
                     return filtered;
                   }}
+                  renderTags={(value, getTagProps) =>
+                    value
+                      .filter((item) => item._id !== 'CREATE_NEW') // don't show "Create" as tag
+                      .map((option, index) => (
+                        <Chip
+                          label={option.name}
+                          {...getTagProps({ index })}
+                          key={option._id}
+                          size="small"
+                          style={{ backgroundColor: '#e0f2f1', color: '#00695c' }}
+                        />
+                      ))
+                  }
                   renderOption={(props, option) => (
                     <li {...props} key={option._id || 'create'}>
                       {option._id === 'CREATE_NEW' ? (
@@ -290,7 +352,11 @@ export default function ProfessionalForm({
                       <input
                         type="text"
                         {...params.inputProps}
-                        placeholder="Search products or create new..."
+                        placeholder={
+                          selectedItems.length === 0
+                            ? "Search products or create new..."
+                            : ""
+                        }
                         style={{
                           width: '100%',
                           padding: '12px',
@@ -310,13 +376,51 @@ export default function ProfessionalForm({
                           color: '#555',
                         }}
                       >
-                        Product
+                        Products (Select multiple)
                       </label>
                     </div>
                   )}
                   noOptionsText="No products found"
                 />
               </Grid>
+
+              {selectedItems.length > 0 && (
+                <Grid item container spacing={2}>
+                  {selectedItems.map((item, index) => (
+                    <Grid item xs={12} key={item.productId}>
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <Typography variant="body1" style={{ width: 200 }}>
+                          {item.name} {item.sku && `(SKU: ${item.sku})`}
+                        </Typography>
+                        <TextField
+                          label="Quantity"
+                          type="number"
+                          size="small"
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const updated = [...selectedItems];
+                            updated[index].quantity = parseInt(e.target.value) || 1;
+                            setSelectedItems(updated);
+                          }}
+                          inputProps={{ min: 1 }}
+                          style={{ width: 100 }}
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          (default: {item.reorderLevel})
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setSelectedItems(selectedItems.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
 
               <Grid item>
                 <Autocomplete
@@ -405,18 +509,7 @@ export default function ProfessionalForm({
                 />
               </Grid>
 
-
-
               {/* Other fields */}
-              <Grid item>
-                <TextField
-                  label="Quantity"
-                  name="quantity"
-                  type="number"
-                  value={formData.quantity}
-                  onChange={handleInputChange}
-                />
-              </Grid>
 
               <Grid item>
                 <TextField
@@ -431,21 +524,45 @@ export default function ProfessionalForm({
                 variant="outlined"
                 type="submit"
                 name="submit"
-                color='success'
-                sx={{mt: 20}}
+                color="success"
+                sx={{ mt: 20 }}
               >
                 {submitLabel}
               </Button>
             </Grid>
-
           </TabPanel>
 
           {/* Navigation */}
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', marginRight: 125}}>
-
-          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              justifyContent: 'flex-end',
+              marginRight: 125,
+            }}
+          ></Box>
         </Box>
       </Paper>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={4000}  // 4 seconds
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}  // Bottom-right corner
+        sx={{ zIndex: 9999 }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          variant="filled"
+          sx={{
+            width: '100%',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

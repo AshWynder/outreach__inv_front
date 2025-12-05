@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useApp } from '../../context/AppContext.jsx';
 import { actions } from '../../context/actions.js';
 
@@ -22,6 +22,7 @@ export default function PurchaseorderState() {
   const navigate = useNavigate();
   const { state, dispatch } = useApp();
   const { purchaseOrders, suppliers, products, loading } = state;
+  const [purchaseError, setPurchaseError] = useState('');
   console.log(state);
 
   const isEditMode = !!id;
@@ -104,13 +105,17 @@ export default function PurchaseorderState() {
 
   console.log(state);
   //handlers
+
   const handleSubmit = async (data) => {
     if (isEditMode) {
-      await actions.updatePurchaseorder(dispatch, id, data);
+      try {
+        await actions.updatePurchaseOrder(dispatch, id, data);
+      } catch(err){
+        setPurchaseError(err.message);
+      }
     } else {
-      await actions.createPurchaseorder(dispatch, data);
+      await actions.createPurchaseOrder(dispatch, data);
     }
-    navigate('/purchaseOrders');
   };
   return (
     <ProfessionalForm
@@ -121,6 +126,7 @@ export default function PurchaseorderState() {
       submitLabel={isEditMode ? 'Update Purchase Order' : 'Send Request'}
       suppliers={suppliers}
       products={products}
+      PurchaseError
     />
   );
 }

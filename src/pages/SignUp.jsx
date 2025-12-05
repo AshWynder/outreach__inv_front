@@ -11,6 +11,10 @@ import {
   Alert,
   Link,
   Divider,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControl,
 } from '@mui/material';
 import {
   Visibility,
@@ -19,30 +23,32 @@ import {
   Email,
   Lock,
 } from '@mui/icons-material';
+import api from '../services/api.js';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    role: '',
     password: '',
     confirmPassword: '',
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
@@ -79,15 +85,40 @@ export default function SignUp() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newErrors = validateForm();
+    setErrors({});
+    setSubmitStatus(null);
 
-    if (Object.keys(newErrors).length === 0) {
-      setSubmitStatus('success');
-      console.log('Form submitted:', formData);
-    } else {
-      setErrors(newErrors);
-      setSubmitStatus('error');
+    //client errors
+    const clientErrors = validateForm();
+
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors);
+      return;
     }
+
+    fetch(api.users.signupUser(formData)).then((res) => {
+      console.log(res);
+      if (res.ok) {
+        setSubmitStatus('success');
+      } else {
+        setSubmitStatus('error');
+        setErrors({
+          general: res.message || 'Something went wrong. Please try again',
+        });
+      }
+    });
+
+    // const res = api.users.signupUser(formData);
+    // // if(res) setSubmitStatus('success');
+    // console.log(res);
+    // if (res.status === 201) {
+    //   setSubmitStatus('success');
+    // } else {
+    //   setSubmitStatus('error');
+    //   setErrors({
+    //     general: res.message || 'Something went wrong. Please try again',
+    //   });
+    // }
   };
 
   return (
@@ -97,7 +128,8 @@ export default function SignUp() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #14b8a6 0%, #0891b2 50%, #3b82f6 100%)',
+        background:
+          'linear-gradient(135deg, #14b8a6 0%, #0891b2 50%, #3b82f6 100%)',
         py: 4,
       }}
     >
@@ -133,6 +165,16 @@ export default function SignUp() {
           {submitStatus === 'success' && (
             <Alert severity="success" sx={{ mb: 3 }}>
               Account created successfully!
+            </Alert>
+          )}
+
+          {errors.general && (
+            <Alert
+              severity="error"
+              onClose={() => setErrors({})} // clicking X clears the error
+              sx={{ mb: 3 }}
+            >
+              {errors.general}
             </Alert>
           )}
 
@@ -193,6 +235,36 @@ export default function SignUp() {
                 },
               }}
             />
+            <FormControl
+              fullWidth
+              color="teal.500"
+              sx={{
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                  {
+                    borderColor: '#009688',
+                  },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#009688',
+                },
+              }}
+            >
+              <InputLabel id="user-role-label">Select user role</InputLabel>
+              <Select
+                labelId="user-role-label"
+                id="user-roles"
+                name="role"
+                value={formData.role}
+                label="Select user role"
+                onChange={handleChange}
+                variant="outlined"
+              >
+                <MenuItem value="admin">Administrator</MenuItem>
+                <MenuItem value="accounts">Accounts</MenuItem>
+                <MenuItem value="sales">Sales</MenuItem>
+                <MenuItem value="supplyChain">Supply Chain</MenuItem>
+                <MenuItem value="manager">Manager</MenuItem>
+              </Select>
+            </FormControl>
 
             <TextField
               fullWidth
@@ -252,7 +324,9 @@ export default function SignUp() {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       edge="end"
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
@@ -277,19 +351,19 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               size="large"
+              disabled={isLoading}
               sx={{
                 mt: 3,
                 mb: 2,
                 py: 1.5,
                 background: 'linear-gradient(135deg, #14b8a6 0%, #0891b2 100%)',
-                boxShadow: '0 4px 15px rgba(20, 184, 166, 0.4)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #0d9488 0%, #0e7490 100%)',
-                  boxShadow: '0 6px 20px rgba(20, 184, 166, 0.6)',
+                  background:
+                    'linear-gradient(135deg, #0d9488 0%, #0e7490 100%)',
                 },
               }}
             >
-              Sign Up
+              {isLoading ? 'Creating Account...' : 'Sign Up'}
             </Button>
 
             <Divider sx={{ my: 2 }}>

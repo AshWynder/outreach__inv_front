@@ -193,3 +193,7 @@
     letter-spacing: 0.7rem;
     margin-left: 18px;
 }
+
+.profile-name {
+    text-transform: capitalize;
+}

@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import React from 'react';
-import AddOrder from './pages/AddOrder.jsx';
+import AddOrder from './pages/order/AddOrder.jsx';
 import ViewProducts from './pages/product/ViewProducts.jsx';
 import ProductState from './pages/product/productState.jsx';
 import ViewSuppliers from './pages/supplier/ViewSuppliers.jsx';

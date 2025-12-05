@@ -6,9 +6,11 @@ export const initialState = {
   orders: [],
   purchaseOrders: [],
   users: [],
+  currentUser: [],
   categories: [],
   loading: false,
   error: null,
+  notifications: [],
 };
 
 export function appReducer(state, action) {
@@ -188,6 +190,9 @@ export function appReducer(state, action) {
 
     // users
     // api calling
+    case 'SET_LOGGED_IN_USER':
+      return { ...state, currentUser: action.payload, loading: false };
+
     case 'SET_USERS':
       return { ...state, users: action.payload, loading: false };
 
@@ -219,5 +224,20 @@ export function appReducer(state, action) {
     // api calling
     case 'SET_CATEGORIES':
       return { ...state, categories: action.payload, loading: false };
+
+    // notifications
+    case 'SET_NOTIFICATIONS':
+      return { ...state, notifications: action.payload, loading: false };
+
+    case 'UPDATE_NOTIFICATION':
+      return {
+        ...state,
+        notifications: state.notifications.notifications.map((notification) => {
+          notification._id === action.payload._id
+            ? action.payload
+            : notification;
+        }),
+        loading: false,
+      };
   }
 }

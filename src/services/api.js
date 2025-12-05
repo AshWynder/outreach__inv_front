@@ -1,15 +1,29 @@
 import axios from 'axios';
+import {useNavigate} from "react-router-dom";
 
 // axios instance
 const axiosInstance = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'http://localhost:8001/api/v1/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // add request interceptor for auth tokens
+
+axiosInstance.interceptors.request.use((config) => {
+  console.log('Making request to →', config.baseURL + config.url);
+  // → will print: /api/v1/sign-up   ← perfect
+  // or: /api/v1/v1/sign-up          ← broken (double v1)
+  return config;
+}, (error) => {
+  if(error.response?.status === 401){
+    window.location.href = '/login';
+  }
+  return Promise.reject(error);
+});
 
 // add response interceptor for error handling
 
@@ -135,8 +149,22 @@ export const api = {
       return axiosInstance.get('/users');
     },
 
+    getLoggedInUser(){
+      return axiosInstance.get('/users/me');
+    },
+
     createUser(data) {
       return axiosInstance.post('/users', data);
+    },
+
+    signupUser(data) {
+      console.log(data);
+      return axiosInstance.post('users/sign-up', data);
+    },
+
+    loginUser(data) {
+      console.log(data);
+      return axiosInstance.post('users/login', data);
     },
 
     patchUser(id, data) {
@@ -147,6 +175,17 @@ export const api = {
       return axiosInstance.delete(`/users/${id}`);
     },
   },
+
+  // notification
+  notifications: {
+    getNotifications(){
+      return axiosInstance.get('/notifications');
+    },
+
+    updateNotification(id){
+      return axiosInstance.patch(`/notifications/${id}`);
+    }
+  }
 };
 
 export default api;
