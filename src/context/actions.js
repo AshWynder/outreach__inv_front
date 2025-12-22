@@ -159,7 +159,8 @@ export const actions = {
     dispatch({type: 'SET_LOADING', payload: true});
     try {
       const response = await api.orders.getOrders();
-      dispatch({type: 'SET_ORDERS', payload: response.data});
+      console.log(response)
+      dispatch({type: 'SET_ORDERS', payload: response.data.data.data});
     } catch (err) {
       errorHandler(dispatch, err?.message);
     }
@@ -170,6 +171,7 @@ export const actions = {
 
     try {
       const response = await api.orders.createOrder(data);
+      console.log(response)
       dispatch({type: 'ADD_ORDER', payload: response.data});
       return response.data;
     } catch (err) {

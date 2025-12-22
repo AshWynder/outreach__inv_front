@@ -124,11 +124,11 @@ export default function ViewProducts() {
               {products.map((product) => (
                 <TableRow key={product?._id} hover>
                   <TableCell>{product?.name}</TableCell>
-                  <TableCell>{product?.custom_attributes.processor}</TableCell>
-                  <TableCell>{product?.custom_attributes.ram}</TableCell>
-                  <TableCell>{product?.custom_attributes.storage}</TableCell>
-                  <TableCell>Kshs. {product?.pricing.cost_price}</TableCell>
-                  <TableCell>Kshs. {product?.pricing.selling_price}</TableCell>
+                  <TableCell>{product?.custom_attributes?.processor}</TableCell>
+                  <TableCell>{product?.custom_attributes?.ram}</TableCell>
+                  <TableCell>{product?.custom_attributes?.storage}</TableCell>
+                  <TableCell>Kshs. {product?.pricing?.cost_price}</TableCell>
+                  <TableCell>Kshs. {product?.pricing?.selling_price}</TableCell>
                   <TableCell sx={{textAlign: 'center'}}>{product?.inventory.quantity_on_hand}</TableCell>
                   <TableCell align="center">
                     <IconButton

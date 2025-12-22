@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
-// Mock Material-UI components with similar styling
+// Mock Material-UI components
 const Box = ({ children, sx = {}, component = 'div', ...props }) => {
   const style = {
     padding: sx.p ? `${sx.p * 8}px` : undefined,
@@ -13,10 +13,17 @@ const Box = ({ children, sx = {}, component = 'div', ...props }) => {
     borderBottom: sx.borderBottom
       ? `${sx.borderBottom}px solid ${sx.borderColor || '#e0e0e0'}`
       : undefined,
+    borderTop: sx.borderTop
+      ? `${sx.borderTop}px solid ${sx.borderColor || '#e0e0e0'}`
+      : undefined,
     marginBottom: sx.mb ? `${sx.mb * 8}px` : undefined,
     display: sx.display,
     justifyContent: sx.justifyContent,
     gap: sx.gap ? `${sx.gap * 8}px` : undefined,
+    borderRadius: sx.borderRadius,
+    height: sx.height,
+    alignItems: sx.alignItems,
+    cursor: sx.cursor,
     ...sx,
   };
   return React.createElement(component, { style, ...props }, children);
@@ -115,25 +122,24 @@ const Grid = ({ children, container, item, xs, sm, spacing, sx = {} }) => {
     );
   }
 
-  // Handle column spanning for items
   const colSpan = sm === 12 || xs === 12 ? 2 : 1;
   return <div style={{ gridColumn: `span ${colSpan}`, ...sx }}>{children}</div>;
 };
 
 const TextField = ({
-  label,
-  name,
-  value,
-  onChange,
-  type = 'text',
-  required,
-  multiline,
-  rows,
-  fullWidth,
-  variant,
-  InputLabelProps,
-  placeholder,
-}) => (
+                     label,
+                     name,
+                     value,
+                     onChange,
+                     type = 'text',
+                     required,
+                     multiline,
+                     rows,
+                     fullWidth,
+                     variant,
+                     InputLabelProps,
+                     placeholder,
+                   }) => (
   <div style={{ marginBottom: '8px', width: fullWidth ? '100%' : 'auto' }}>
     <label
       style={{
@@ -181,10 +187,6 @@ const TextField = ({
           outline: 'none',
           transition: 'all 0.2s ease',
           color: '#212121',
-          ':focus': {
-            border: '2px solid #009688',
-            padding: '11px',
-          },
         }}
       />
     )}
@@ -227,13 +229,13 @@ const MenuItem = ({ children, value }) => (
 );
 
 const Button = ({
-  children,
-  variant = 'contained',
-  color = 'primary',
-  onClick,
-  disabled,
-  type,
-}) => {
+                  children,
+                  variant = 'contained',
+                  color = 'primary',
+                  onClick,
+                  disabled,
+                  type,
+                }) => {
   const colors = {
     primary: { bg: '#1976d2', text: 'white' },
     success: { bg: '#2e7d32', text: 'white' },
@@ -282,17 +284,17 @@ function TabPanel({ children, value, index }) {
 }
 
 export default function ProfessionalForm({
-  initialData,
-  onSubmit,
-  fromEdit,
-  title,
-  submitLabel,
-}) {
+                                           initialData,
+                                           onSubmit,
+                                           fromEdit,
+                                           title,
+                                           submitLabel,
+                                         }) {
   const defaultForm = {
     firstName: '',
     lastName: '',
     idNumber: '',
-    dateOfBirth: '',
+    dateOfBirth: null,
     gender: '',
     email: '',
     phone: '',
@@ -313,12 +315,14 @@ export default function ProfessionalForm({
   const [formData, setFormData] = useState(defaultForm);
 
   useEffect(() => {
-    if(fromEdit && initialData){
+    if (fromEdit && initialData) {
       const flattened = {
         firstName: initialData.personal_info?.first_name || '',
         lastName: initialData.personal_info?.last_name || '',
         idNumber: initialData.personal_info?.id_number || '',
-        dateOfBirth: initialData.personal_info?.date_of_birth || '',
+        dateOfBirth: initialData.personal_info?.date_of_birth
+          ? dayjs(initialData.personal_info.date_of_birth)
+          : null,
         gender: initialData.personal_info?.gender || '',
         email: initialData.contact_info?.email || '',
         phone: initialData.contact_info?.phone || '',
@@ -334,10 +338,9 @@ export default function ProfessionalForm({
         creditAvailable: initialData.financial?.credit_available || '',
         discountPercentage: initialData.financial?.discount_percentage || '',
       };
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(flattened);
-    } else {
-      setFormData(initialData || defaultForm);
+    } else if (initialData) {
+      setFormData(initialData);
     }
   }, [initialData, fromEdit]);
 
@@ -349,9 +352,13 @@ export default function ProfessionalForm({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleDateChange = (newValue) => {
+    setFormData({ ...formData, dateOfBirth: newValue });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-   onSubmit(formData);
+    onSubmit(formData);
   };
 
   return (
@@ -389,7 +396,7 @@ export default function ProfessionalForm({
         </Tabs>
 
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Tab 1: Basic Information */}
+          {/* Tab 1: Personal Information */}
           <TabPanel value={activeTab} index={0}>
             <Grid
               container
@@ -433,14 +440,14 @@ export default function ProfessionalForm({
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Select date"
-                    value={dayjs(formData.dateOfBirth)}
-                    onChange={handleInputChange}
+                    label="Date of Birth"
+                    value={formData.dateOfBirth}
+                    onChange={handleDateChange}
                     format="YYYY-MM-DD"
                     slotProps={{
                       textField: {
                         fullWidth: true,
-                      }
+                      },
                     }}
                   />
                 </LocalizationProvider>
@@ -461,7 +468,7 @@ export default function ProfessionalForm({
             </Grid>
           </TabPanel>
 
-          {/* Tab 2: contact info */}
+          {/* Tab 2: Contact Info */}
           <TabPanel value={activeTab} index={1}>
             <Grid
               container
@@ -475,10 +482,12 @@ export default function ProfessionalForm({
               <Grid item xs={12} sx={{ width: '60%' }}>
                 <TextField
                   fullWidth
-                  label="Email address"
+                  label="Email Address"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  type="email"
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -489,6 +498,7 @@ export default function ProfessionalForm({
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="+254..."
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -513,7 +523,7 @@ export default function ProfessionalForm({
             </Grid>
           </TabPanel>
 
-          {/* Tab 3: address */}
+          {/* Tab 3: Address */}
           <TabPanel value={activeTab} index={2}>
             <Grid
               container
@@ -590,6 +600,7 @@ export default function ProfessionalForm({
                   name="creditLimit"
                   value={formData.creditLimit}
                   onChange={handleInputChange}
+                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
@@ -599,6 +610,7 @@ export default function ProfessionalForm({
                   name="creditUsed"
                   value={formData.creditUsed}
                   onChange={handleInputChange}
+                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sx={{ width: '60%' }}>
@@ -608,22 +620,22 @@ export default function ProfessionalForm({
                   name="creditAvailable"
                   value={formData.creditAvailable}
                   onChange={handleInputChange}
+                  type="number"
                 />
               </Grid>
               <Grid item xs={12} sx={{ width: '60%' }}>
                 <TextField
                   fullWidth
                   label="Discount in Percentage"
-                  name="discount"
+                  name="discountPercentage"
                   value={formData.discountPercentage}
                   onChange={handleInputChange}
-                  type='number'
+                  type="number"
                 />
               </Grid>
             </Grid>
           </TabPanel>
 
-          {/* Navigation Buttons */}
           {/* Navigation Buttons */}
           <Box
             sx={{
@@ -635,7 +647,7 @@ export default function ProfessionalForm({
           >
             <Box
               sx={{
-                bgcolor: '#009688',
+                bgcolor: activeTab === 0 ? '#ccc' : '#009688',
                 color: '#fff',
                 p: 3,
                 borderRadius: '1rem',
@@ -643,10 +655,9 @@ export default function ProfessionalForm({
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                cursor: 'pointer',
+                cursor: activeTab === 0 ? 'not-allowed' : 'pointer',
               }}
-              onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
-              disabled={activeTab === 0}
+              onClick={() => activeTab > 0 && setActiveTab(activeTab - 1)}
             >
               Previous
             </Box>
@@ -664,7 +675,7 @@ export default function ProfessionalForm({
                     alignItems: 'center',
                     cursor: 'pointer',
                   }}
-                  onClick={() => setActiveTab(Math.min(4, activeTab + 1))}
+                  onClick={() => setActiveTab(activeTab + 1)}
                 >
                   Next
                 </Box>

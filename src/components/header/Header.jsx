@@ -28,22 +28,29 @@ export default function Header() {
 
   const { notifications, loading, currentUser, error } = state;
 
+  // Role-based access check - only admin and manager see notifications
+  const canViewNotifications = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+
   // fetching logged in user
   useEffect(() => {
     actions.fetchLoggedInUser(dispatch);
   }, [dispatch]);
 
-  // fetch notifications
+  // fetch notifications - only for admin and manager
   useEffect(() => {
-    actions.fetchNotifications(dispatch);
-  }, [dispatch]);
+    if (canViewNotifications) {
+      actions.fetchNotifications(dispatch);
+    }
+  }, [dispatch, canViewNotifications]);
 
   // calculating unread count
-  const unreadCount = notifications.unread;
+  const unreadCount = notifications?.unread || 0;
   console.log(notifications, unreadCount);
 
   // handling notifications bell click
   const handleBellClick = (e) => {
+    if (!canViewNotifications) return; // Safety check
+
     setAnchorEl(e.currentTarget);
 
     //refreshing notifications
@@ -88,100 +95,102 @@ export default function Header() {
       </div>
 
       <div className="header__right-actions">
-        {/* Notifications Icon with Badge */}
-        <div className="notification-icon-wrapper">
-          <IconButton onClick={handleBellClick} color="inherit">
-            {loading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              <Badge badgeContent={unreadCount} color="error">
-                <NotificationsActiveIcon sx={{ fontSize: 28 }} />
-              </Badge>
-            )}
-          </IconButton>
+        {/* Notifications Icon with Badge - ONLY FOR ADMIN AND MANAGER */}
+        {canViewNotifications && (
+          <div className="notification-icon-wrapper">
+            <IconButton onClick={handleBellClick} color="inherit">
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                <Badge badgeContent={unreadCount} color="error">
+                  <NotificationsActiveIcon sx={{ fontSize: 28 }} />
+                </Badge>
+              )}
+            </IconButton>
 
-          {/*notification drop down*/}
-          <Popover
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            PaperProps={{
-              sx: { width: 380, maxHeight: 600, mt: 1 },
-            }}
-          >
-            <Box sx={{ p: 2 }}>
-              <Typography variant="h6" fontWeight="bold" color="text.secondary">
-                Notifications
-                {unreadCount > 0 && (
-                  <Typography component="span" color="error" sx={{ ml: 1 }}>
-                    ({unreadCount} new)
-                  </Typography>
-                )}
-              </Typography>
-            </Box>
-            <Divider />
+            {/*notification drop down*/}
+            <Popover
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              PaperProps={{
+                sx: { width: 380, maxHeight: 600, mt: 1 },
+              }}
+            >
+              <Box sx={{ p: 2 }}>
+                <Typography variant="h6" fontWeight="bold" color="text.secondary">
+                  Notifications
+                  {unreadCount > 0 && (
+                    <Typography component="span" color="error" sx={{ ml: 1 }}>
+                      ({unreadCount} new)
+                    </Typography>
+                  )}
+                </Typography>
+              </Box>
+              <Divider />
 
-            {notifications.length === 0 ? (
-              <ListItem>
-                <ListItemText
-                  primary="No Notifications"
-                  secondary="You are all caught up!"
-                />
-              </ListItem>
-            ) : (
-              <List sx={{ p: 0 }}>
-                {notifications?.notifications?.map((notification) => (
-                  <Fragment key={notification.id}>
-                    <ListItem
-                      button
-                      onClick={() => handleNotificationClick(notification)}
-                      sx={{
-                        bgcolor: !notification.readAt
-                          ? 'teal.50'
-                          : 'transparent',
-                        '&:hover': { bgcolor: 'teal.100' },
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          <Typography
-                            variant="body1"
-                            fontWeight={notification.readAt ? 'normal' : 'bold'}
-                          >
-                            {notification.title}
-                          </Typography>
-                        }
-                        secondary={
-                          <>
+              {notifications.length === 0 ? (
+                <ListItem>
+                  <ListItemText
+                    primary="No Notifications"
+                    secondary="You are all caught up!"
+                  />
+                </ListItem>
+              ) : (
+                <List sx={{ p: 0 }}>
+                  {notifications?.notifications?.map((notification) => (
+                    <Fragment key={notification.id}>
+                      <ListItem
+                        button
+                        onClick={() => handleNotificationClick(notification)}
+                        sx={{
+                          bgcolor: !notification.readAt
+                            ? 'teal.50'
+                            : 'transparent',
+                          '&:hover': { bgcolor: 'teal.100' },
+                        }}
+                      >
+                        <ListItemText
+                          primary={
                             <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              gutterBottom
+                              variant="body1"
+                              fontWeight={notification.readAt ? 'normal' : 'bold'}
                             >
-                              {notification.message.charAt(0).toUpperCase() +
-                                notification.message.slice(1)}
+                              {notification.title}
                             </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              sx={{ mt: 3 }}
-                            >
-                              {new Date(
-                                notification.createdAt
-                              ).toLocaleString()}
-                            </Typography>
-                          </>
-                        }
-                      />
-                    </ListItem>
-                  </Fragment>
-                ))}
-              </List>
-            )}
-          </Popover>
-        </div>
+                          }
+                          secondary={
+                            <>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                              >
+                                {notification.message.charAt(0).toUpperCase() +
+                                  notification.message.slice(1)}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ mt: 3 }}
+                              >
+                                {new Date(
+                                  notification.createdAt
+                                ).toLocaleString()}
+                              </Typography>
+                            </>
+                          }
+                        />
+                      </ListItem>
+                    </Fragment>
+                  ))}
+                </List>
+              )}
+            </Popover>
+          </div>
+        )}
 
         {/* Profile Avatar (using a more styled wrapper to mimic the image) */}
         <div className="profile-avatar-wrapper">
@@ -189,7 +198,7 @@ export default function Header() {
           <Avatar sx={{ bgcolor: '#ffc107', color: '#333' }}>
             <AccountCircleIcon /> {/* Or a letter, e.g., "A" */}
           </Avatar>
-          <span className="profile-name">{currentUser.name}</span>
+          <span className="profile-name">{currentUser?.name || 'User'}</span>
         </div>
       </div>
     </header>

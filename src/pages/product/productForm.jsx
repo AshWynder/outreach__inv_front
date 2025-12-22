@@ -309,8 +309,6 @@ export default function ProfessionalForm({
     ram: '',
     storage: '',
     screenSize: '',
-    category: '',
-    supplier: '',
   };
 
   console.log(initialData);
@@ -343,8 +341,6 @@ export default function ProfessionalForm({
         model: initialData.model || '',
         color: initialData.color || '',
         weight: initialData.weight || '',
-        category: initialData.category || '',
-        supplier: initialData.supplier || '',
       };
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(flattened);

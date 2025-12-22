@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 
 // axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8001/api/v1/',
+  baseURL: 'http://localhost:8001/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -47,14 +47,14 @@ export const api = {
       return axiosInstance.delete(`/products/${id}`);
     },
     getStats(){
-      return axiosInstance.get('products/dashboard/stats');
+      return axiosInstance.get('/products/dashboard/stats');
     }
   },
 
   // suppliers
   suppliers: {
     getSupplier(id) {
-      return axiosInstance.get(`suppliers/${id}`);
+      return axiosInstance.get(`/suppliers/${id}`);
     },
 
     getSuppliers() {
@@ -154,17 +154,17 @@ export const api = {
     },
 
     createUser(data) {
-      return axiosInstance.post('/users', data);
+      return axiosInstance.post('/users/', data);
     },
 
     signupUser(data) {
       console.log(data);
-      return axiosInstance.post('users/sign-up', data);
+      return axiosInstance.post('/users/sign-up', data);
     },
 
     loginUser(data) {
       console.log(data);
-      return axiosInstance.post('users/login', data);
+      return axiosInstance.post('/users/login', data);
     },
 
     patchUser(id, data) {

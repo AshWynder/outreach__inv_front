@@ -13,6 +13,11 @@ const Box = ({ children, sx = {}, component = 'div', ...props }) => {
     display: sx.display,
     justifyContent: sx.justifyContent,
     gap: sx.gap ? `${sx.gap * 8}px` : undefined,
+    borderTop: sx.borderTop ? `${sx.borderTop}px solid ${sx.borderColor || '#e0e0e0'}` : undefined,
+    borderRadius: sx.borderRadius,
+    height: sx.height,
+    alignItems: sx.alignItems,
+    cursor: sx.cursor,
     ...sx,
   };
   return React.createElement(component, { style, ...props }, children);
@@ -111,25 +116,24 @@ const Grid = ({ children, container, item, xs, sm, spacing, sx = {} }) => {
     );
   }
 
-  // Handle column spanning for items
   const colSpan = sm === 12 || xs === 12 ? 2 : 1;
   return <div style={{ gridColumn: `span ${colSpan}`, ...sx }}>{children}</div>;
 };
 
 const TextField = ({
-  label,
-  name,
-  value,
-  onChange,
-  type = 'text',
-  required,
-  multiline,
-  rows,
-  fullWidth,
-  variant,
-  InputLabelProps,
-  placeholder,
-}) => (
+                     label,
+                     name,
+                     value,
+                     onChange,
+                     type = 'text',
+                     required,
+                     multiline,
+                     rows,
+                     fullWidth,
+                     variant,
+                     InputLabelProps,
+                     placeholder,
+                   }) => (
   <div style={{ marginBottom: '8px', width: fullWidth ? '100%' : 'auto' }}>
     <label
       style={{
@@ -177,59 +181,20 @@ const TextField = ({
           outline: 'none',
           transition: 'all 0.2s ease',
           color: '#212121',
-          ':focus': {
-            border: '2px solid #009688',
-            padding: '11px',
-          },
         }}
       />
     )}
   </div>
 );
 
-const Select = ({ children, name, value, onChange, label, fullWidth }) => (
-  <div style={{ marginBottom: '8px', width: fullWidth ? '100%' : 'auto' }}>
-    <label
-      style={{
-        display: 'block',
-        fontSize: '12px',
-        color: '#666',
-        marginBottom: '8px',
-        fontWeight: 500,
-      }}
-    >
-      {label}
-    </label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      style={{
-        width: '100%',
-        padding: '12px',
-        fontSize: '16px',
-        border: '1px solid #ccc',
-        borderRadius: '4px',
-        backgroundColor: 'white',
-      }}
-    >
-      {children}
-    </select>
-  </div>
-);
-
-const MenuItem = ({ children, value }) => (
-  <option value={value}>{children}</option>
-);
-
 const Button = ({
-  children,
-  variant = 'contained',
-  color = 'primary',
-  onClick,
-  disabled,
-  type,
-}) => {
+                  children,
+                  variant = 'contained',
+                  color = 'primary',
+                  onClick,
+                  disabled,
+                  type,
+                }) => {
   const colors = {
     primary: { bg: '#1976d2', text: 'white' },
     success: { bg: '#2e7d32', text: 'white' },
@@ -278,15 +243,13 @@ function TabPanel({ children, value, index }) {
 }
 
 export default function ProfessionalForm({
-  initialData,
-  title,
-  submitLabel,
-  onSubmit,
-  fromEdit,
-}) {
-  console.log(initialData);
-
-  const defaultForm  = {
+                                           initialData,
+                                           title,
+                                           submitLabel,
+                                           onSubmit,
+                                           fromEdit,
+                                         }) {
+  const defaultForm = {
     companyName: '',
     tradingName: '',
     name: '',
@@ -304,10 +267,35 @@ export default function ProfessionalForm({
     accountName: '',
     branchName: '',
     accountNumber: '',
-  }
+  };
+
+  // Transform nested data to flat structure if in edit mode
+  const [formData, setFormData] = useState(() => {
+    if (fromEdit && initialData) {
+      return {
+        companyName: initialData.company_name || '',
+        tradingName: initialData.trading_name || '',
+        name: initialData.contact_info?.name || '',
+        title: initialData.contact_info?.title || '',
+        email: initialData.contact_info?.email || '',
+        phone: initialData.contact_info?.phone || '',
+        altPhone: initialData.contact_info?.alt_phone || '',
+        kraPin: initialData.business_details?.kra_pin || '',
+        businessType: initialData.business_details?.business_type || '',
+        industry: initialData.business_details?.industry || '',
+        creditLimit: initialData.financial?.credit_limit || '',
+        creditUsed: initialData.financial?.credit_used || '',
+        creditAvailable: initialData.financial?.credit_available || '',
+        bankName: initialData.bank_details?.bank_name || '',
+        accountName: initialData.bank_details?.account_name || '',
+        branchName: initialData.bank_details?.branch_name || '',
+        accountNumber: initialData.bank_details?.account_number || '',
+      };
+    }
+    return initialData || defaultForm;
+  });
 
   const [activeTab, setActiveTab] = useState(0);
-  const [formData, setFormData] = useState(initialData || defaultForm);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -373,9 +361,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Company Name"
                   name="companyName"
-                  value={
-                    fromEdit ? formData.company_name : formData.companyName
-                  }
+                  value={formData.companyName}
                   onChange={handleInputChange}
                   required
                 />
@@ -385,7 +371,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Trading Name"
                   name="tradingName"
-                  value={fromEdit ? formData.trading_name : formData.companyName}
+                  value={formData.tradingName}
                   onChange={handleInputChange}
                   required
                 />
@@ -395,9 +381,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Contact Person Name"
                   name="name"
-                  value={
-                    fromEdit ? formData.contact_info.name : formData.tradingName
-                  }
+                  value={formData.name}
                   onChange={handleInputChange}
                   required
                 />
@@ -407,7 +391,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Contact Person Title"
                   name="title"
-                  value={fromEdit ? formData.contact_info.title : formData.name}
+                  value={formData.title}
                   onChange={handleInputChange}
                   required
                 />
@@ -417,9 +401,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Contact Person Email"
                   name="email"
-                  value={
-                    fromEdit ? formData.contact_info.email : formData.email
-                  }
+                  value={formData.email}
                   onChange={handleInputChange}
                   InputLabelProps={{ shrink: true }}
                 />
@@ -429,9 +411,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Contact Person Phone Number"
                   name="phone"
-                  value={
-                    fromEdit ? formData.contact_info.phone : formData.phone
-                  }
+                  value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="+254..."
                 />
@@ -441,11 +421,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Contact Person Alternate Phone Number"
                   name="altPhone"
-                  value={
-                    fromEdit
-                      ? formData.contact_info.alt_phone
-                      : formData.altPhone
-                  }
+                  value={formData.altPhone}
                   onChange={handleInputChange}
                   placeholder="+254..."
                 />
@@ -453,7 +429,7 @@ export default function ProfessionalForm({
             </Grid>
           </TabPanel>
 
-          {/* Tab 2: inventory */}
+          {/* Tab 2: Business Details */}
           <TabPanel value={activeTab} index={1}>
             <Grid
               container
@@ -469,11 +445,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="KRA Pin"
                   name="kraPin"
-                  value={
-                    fromEdit
-                      ? formData.business_details.kra_pin
-                      : formData.kraPin
-                  }
+                  value={formData.kraPin}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -482,31 +454,23 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Business Type"
                   name="businessType"
-                  value={
-                    fromEdit
-                      ? formData.business_details.business_type
-                      : formData.businessType
-                  }
+                  value={formData.businessType}
                   onChange={handleInputChange}
                 />
               </Grid>
               <Grid item xs={12} sm={6} sx={{ width: '60%' }}>
                 <TextField
                   fullWidth
-                  label="industry"
+                  label="Industry"
                   name="industry"
-                  value={
-                    fromEdit
-                      ? formData.business_details.industry
-                      : formData.industry
-                  }
+                  value={formData.industry}
                   onChange={handleInputChange}
                 />
               </Grid>
             </Grid>
           </TabPanel>
 
-          {/* Tab 3: financial */}
+          {/* Tab 3: Financial Info */}
           <TabPanel value={activeTab} index={2}>
             <Grid
               container
@@ -522,11 +486,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Credit Limit"
                   name="creditLimit"
-                  value={
-                    fromEdit
-                      ? formData.financial.credit_limit
-                      : formData.creditLimit
-                  }
+                  value={formData.creditLimit}
                   onChange={handleInputChange}
                   type="number"
                 />
@@ -536,11 +496,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Credit Used"
                   name="creditUsed"
-                  value={
-                    fromEdit
-                      ? formData.financial.credit_used
-                      : formData.creditUsed
-                  }
+                  value={formData.creditUsed}
                   onChange={handleInputChange}
                   type="number"
                 />
@@ -550,11 +506,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Credit Available"
                   name="creditAvailable"
-                  value={
-                    fromEdit
-                      ? formData.financial.credit_available
-                      : formData.creditAvailable
-                  }
+                  value={formData.creditAvailable}
                   onChange={handleInputChange}
                   type="number"
                 />
@@ -562,7 +514,7 @@ export default function ProfessionalForm({
             </Grid>
           </TabPanel>
 
-          {/* Tab 4: custom attributes */}
+          {/* Tab 4: Bank Details */}
           <TabPanel value={activeTab} index={3}>
             <Grid
               container
@@ -578,11 +530,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Bank Name"
                   name="bankName"
-                  value={
-                    fromEdit
-                      ? formData.bank_details.bank_name
-                      : formData.bankName
-                  }
+                  value={formData.bankName}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -591,11 +539,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Account Name"
                   name="accountName"
-                  value={
-                    fromEdit
-                      ? formData.bank_details.account_name
-                      : formData.accountName
-                  }
+                  value={formData.accountName}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -604,11 +548,7 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Branch Name"
                   name="branchName"
-                  value={
-                    fromEdit
-                      ? formData.bank_details.branch_name
-                      : formData.branchName
-                  }
+                  value={formData.branchName}
                   onChange={handleInputChange}
                 />
               </Grid>
@@ -617,19 +557,14 @@ export default function ProfessionalForm({
                   fullWidth
                   label="Account Number"
                   name="accountNumber"
-                  value={
-                    fromEdit
-                      ? formData.bank_details.account_number
-                      : formData.accountNumber
-                  }
+                  value={formData.accountNumber}
                   onChange={handleInputChange}
-                  type="Number"
+                  type="number"
                 />
               </Grid>
             </Grid>
           </TabPanel>
 
-          {/* Navigation Buttons */}
           {/* Navigation Buttons */}
           <Box
             sx={{
@@ -641,7 +576,7 @@ export default function ProfessionalForm({
           >
             <Box
               sx={{
-                bgcolor: '#009688',
+                bgcolor: activeTab === 0 ? '#ccc' : '#009688',
                 color: '#fff',
                 p: 3,
                 borderRadius: '1rem',
@@ -649,10 +584,9 @@ export default function ProfessionalForm({
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                cursor: 'pointer',
+                cursor: activeTab === 0 ? 'not-allowed' : 'pointer',
               }}
-              onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
-              disabled={activeTab === 0}
+              onClick={() => activeTab > 0 && setActiveTab(activeTab - 1)}
             >
               Previous
             </Box>
@@ -670,7 +604,7 @@ export default function ProfessionalForm({
                     alignItems: 'center',
                     cursor: 'pointer',
                   }}
-                  onClick={() => setActiveTab(Math.min(4, activeTab + 1))}
+                  onClick={() => setActiveTab(activeTab + 1)}
                 >
                   Next
                 </Box>

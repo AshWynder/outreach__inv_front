@@ -34,6 +34,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import LockIcon from '@mui/icons-material/Lock';
 import { actions } from '../context/actions.js';
 import { useApp } from '../context/AppContext.jsx';
 
@@ -42,28 +43,40 @@ const COLORS = ['#009688', '#ff7300', '#ff0000', '#8884d8', '#82ca9d', '#ffc658'
 export default function InventoryDashboard() {
   const [error, setError] = useState(null);
   const {dispatch, state} = useApp();
-  const {stats, loading} = state;
+  const {stats, loading, currentUser} = state;
+
+  // Role check - only admin and manager can see dashboard
+  const canViewDashboard = currentUser?.role === 'admin' || currentUser?.role === 'manager';
 
   useEffect(() => {
+    if (canViewDashboard) {
+      actions.fetchProductStats(dispatch);
+    }
+  }, [dispatch, canViewDashboard]);
 
-    actions.fetchProductStats(dispatch);
-
-    // fetch('/api/dashboard/stats')
-    //   .then(res => {
-    //     if (!res.ok) throw new Error('Failed to load dashboard');
-    //     return res.json();
-    //   })
-    //   .then(res => {
-    //     setData(res.stats);
-    //     setLoading(false);
-    //   })
-    //   .catch(err => {
-    //     setError(err.message);
-    //     setLoading(false);
-    //   });
-  }, [dispatch]);
-
-
+  // Show access denied for unauthorized users
+  if (!canViewDashboard) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          gap: 3,
+        }}
+      >
+        <LockIcon sx={{ fontSize: 80, color: 'error.main' }} />
+        <Typography variant="h5" color="text.secondary">
+          Access Denied
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          You don't have permission to view this page
+        </Typography>
+      </Box>
+    );
+  }
 
   if (loading) return (
     <Box
@@ -230,7 +243,7 @@ export default function InventoryDashboard() {
             {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={pieData} // same data works perfectly
+                  data={pieData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -265,7 +278,6 @@ export default function InventoryDashboard() {
         </Grid>
 
         <Grid item xs={12} sx={{display: 'flex', justifyContent: 'space-between', gap: 4}}>
-
           {/* Top Valued Items */}
           <Grid item xs={12} md={6} sx={{ width: '45%' }}>
             <Paper sx={{ p: 3, height: '103%' }}>

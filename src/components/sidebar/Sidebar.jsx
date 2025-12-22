@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Paper,
@@ -20,7 +20,6 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import GroupIcon from '@mui/icons-material/Group';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-// Additional icons for nested items (example)
 import PaymentIcon from '@mui/icons-material/Payment';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import AddIcon from '@mui/icons-material/Add';
@@ -29,9 +28,11 @@ import ScatterPlotIcon from '@mui/icons-material/ScatterPlot';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import LogoutIcon from '@mui/icons-material/Logout';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import {actions} from "../../context/actions.js";
+import {useApp} from "../../context/AppContext.jsx";
 
 export default function Sidebar() {
-  // 1. State for tracking the 'Purchase Orders' expansion
+  const { state, dispatch } = useApp();
   const [openPurchase, setOpenPurchase] = useState(false);
   const [openProducts, setOpenProducts] = useState(false);
   const [openCustomers, setOpenCustomers] = useState(false);
@@ -40,9 +41,31 @@ export default function Sidebar() {
   const [openSuppliers, setOpenSuppliers] = useState(false);
   const [openUsers, setOpenUsers] = useState(false);
 
+  const { notifications, loading, currentUser, error } = state;
+
+  // Role-based access checks
+  const userRole = currentUser?.role;
+  const isAdmin = userRole === 'admin';
+  const isManager = userRole === 'manager';
+  const isSupplyChain = userRole === 'supplyChain';
+  const isSales = userRole === 'sales';
+  const isAccounts = userRole === 'accounts';
+
+  // Permission helpers
+  const canSeeProducts = isAdmin || isManager || isSupplyChain || isSales || isAccounts;
+  const canSeeSuppliers = isAdmin || isManager || isSupplyChain;
+  const canSeePurchaseOrders = isAdmin || isManager || isSupplyChain;
+  const canSeeCustomers = isAdmin || isManager || isSales;
+  const canSeeOrders = isAdmin || isManager || isSales;
+  const canSeeUsers = isAdmin || isManager;
+  const canSeeAnalytics = isAdmin || isManager;
+
+  useEffect(() => {
+    actions.fetchLoggedInUser(dispatch);
+  }, [dispatch]);
+
   const location = useLocation();
 
-  // 2. Click handler to toggle the state
   const handlePurchaseClick = () => {
     setOpenPurchase(!openPurchase);
   };
@@ -73,53 +96,15 @@ export default function Sidebar() {
 
   return (
     <Paper sx={{ width: 350, maxWidth: '100%' }}>
-      {/* NOTE: Since MenuList is designed for keyboard navigation popovers,
-        it's best practice to replace it with a standard <List> for permanent sidebars.
-        However, for minimal change, we'll keep the structure and use <ListItemButton>
-        which works well within the standard <List> component.
-      */}
-
       <List component="nav">
-        {' '}
-        {/* Switched MenuList to List for better compatibility */}
-        {/* PRODUCTS (Regular Item) */}
-        <ListItemButton
-          component={NavLink}
-          to="/"
-          sx={{
-            '&.active': {
-              // ← This gives blue background when active
-              bgcolor: 'teal.500',
-              color: 'white',
-              '& .MuiListItemIcon-root': { color: 'white' },
-              fontWeight: 'medium',
-            },
-          }}
-        >
-          <ListItemIcon>
-            <BarChartIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Analytics" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton onClick={handleProductsClick}>
-          <ListItemIcon>
-            <ScatterPlotIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Products" />
-          {/* 4. Conditional icon for expand/collapse */}
-          {openProducts ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
-        <Collapse in={openProducts} timeout="auto" unmountOnExit>
-          <List component="div" sx={{ ml: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
+        {/* ANALYTICS - Only Admin & Manager */}
+        {canSeeAnalytics && (
+          <>
             <ListItemButton
               component={NavLink}
-              to="/products/add"
+              to="/"
               sx={{
                 '&.active': {
-                  // ← This gives blue background when active
                   bgcolor: 'teal.500',
                   color: 'white',
                   '& .MuiListItemIcon-root': { color: 'white' },
@@ -127,365 +112,334 @@ export default function Sidebar() {
                 },
               }}
             >
-              {/* pl: 4 = padding left for indentation */}
               <ListItemIcon>
-                <AddIcon fontSize="small" />
+                <BarChartIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText>Add Product</ListItemText>
+              <ListItemText primary="Analytics" />
             </ListItemButton>
+            <Divider />
+          </>
+        )}
 
-            {/* Nested Item 2: Returns */}
-            <ListItemButton
-              component={NavLink}
-              to="/products"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-              end
-            >
-              {' '}
+        {/* PRODUCTS - Admin, Manager, Supply Chain, Sales, Accounts */}
+        {canSeeProducts && (
+          <>
+            <ListItemButton onClick={handleProductsClick}>
               <ListItemIcon>
-                <FormatListNumberedRtlIcon fontSize="small" />
+                <ScatterPlotIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText>View Products</ListItemText>
+              <ListItemText primary="Products" />
+              {openProducts ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-          </List>
-        </Collapse>
-        <Divider />
-        {/* SUPPLIERS (Regular Item) */}
-        <ListItemButton onClick={handleSuppliersClick}>
-          <ListItemIcon>
-            <LocalShippingIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Suppliers" />
-          {/* 4. Conditional icon for expand/collapse */}
-          {openSuppliers ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
-        <Collapse in={openSuppliers} timeout="auto" unmountOnExit>
-          <List component="div" sx={{ ml: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
-            <ListItemButton
-              component={NavLink}
-              to="/suppliers/add"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              {' '}
-              {/* pl: 4 = padding left for indentation */}
-              <ListItemIcon>
-                <AddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Add Supplier</ListItemText>
-            </ListItemButton>
+            <Collapse in={openProducts} timeout="auto" unmountOnExit>
+              <List component="div" sx={{ ml: 4 }} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to="/products/add"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <AddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add Product</ListItemText>
+                </ListItemButton>
 
-            {/* Nested Item 2: Returns */}
-            <ListItemButton
-              component={NavLink}
-              to="/suppliers"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-              end
-            >
-              <ListItemIcon>
-                <FormatListNumberedRtlIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>View Suppliers</ListItemText>
-            </ListItemButton>
-          </List>
-        </Collapse>
-        <Divider />
-        <ListItemButton onClick={handleCustomersClick}>
-          <ListItemIcon>
-            <GroupIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Customers" />
-          {/* 4. Conditional icon for expand/collapse */}
-          {openCustomers ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
-        <Collapse in={openCustomers} timeout="auto" unmountOnExit>
-          <List component="div" sx={{ ml: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
-            <ListItemButton
-              component={NavLink}
-              to="/customers/add"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              {' '}
-              {/* pl: 4 = padding left for indentation */}
-              <ListItemIcon>
-                <AddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Add Customer</ListItemText>
-            </ListItemButton>
+                <ListItemButton
+                  component={NavLink}
+                  to="/products"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                  end
+                >
+                  <ListItemIcon>
+                    <FormatListNumberedRtlIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View Products</ListItemText>
+                </ListItemButton>
+              </List>
+            </Collapse>
+            <Divider />
+          </>
+        )}
 
-            {/* Nested Item 2: Returns */}
-            <ListItemButton
-              component={NavLink}
-              to="/customers"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-              end
-            >
+        {/* SUPPLIERS - Admin, Manager, Supply Chain */}
+        {canSeeSuppliers && (
+          <>
+            <ListItemButton onClick={handleSuppliersClick}>
               <ListItemIcon>
-                <FormatListNumberedRtlIcon fontSize="small" />
+                <LocalShippingIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText>View Customers</ListItemText>
+              <ListItemText primary="Suppliers" />
+              {openSuppliers ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-          </List>
-        </Collapse>
-        <Divider />
-        {/* ORDERS (Regular Item) */}
-        <ListItemButton onClick={handleOrdersClick}>
-          <ListItemIcon>
-            <BorderColorIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Orders" />
-          {/* 4. Conditional icon for expand/collapse */}
-          {openOrders ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
-        <Collapse in={openOrders} timeout="auto" unmountOnExit>
-          <List component="div" sx={{ pl: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
-            <ListItemButton
-              component={NavLink}
-              to="/order/add"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              {' '}
-              {/* pl: 4 = padding left for indentation */}
-              <ListItemIcon>
-                <AddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Add Order</ListItemText>
-            </ListItemButton>
+            <Collapse in={openSuppliers} timeout="auto" unmountOnExit>
+              <List component="div" sx={{ ml: 4 }} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to="/suppliers/add"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <AddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add Supplier</ListItemText>
+                </ListItemButton>
 
-            {/* Nested Item 2: Returns */}
-            <ListItemButton
-              component={NavLink}
-              to="/orders/"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              <ListItemIcon>
-                <FormatListNumberedRtlIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>View Orders</ListItemText>
-            </ListItemButton>
-          </List>
-        </Collapse>
-        <Divider />
-        {/* ------------------------------------------- */}
-        {/* 🌟 EXPANDABLE ITEM: PURCHASE ORDERS 🌟 */}
-        {/* ------------------------------------------- */}
-        {/* 3. The main list item is now a ListItemButton */}
-        <ListItemButton onClick={handlePurchaseClick}>
-          <ListItemIcon>
-            <ShoppingCartIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Purchase Orders" />
-          {/* 4. Conditional icon for expand/collapse */}
-          {openPurchase ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
-        <Collapse in={openPurchase} timeout="auto" unmountOnExit>
-          <List component="div" sx={{ ml: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
-            <ListItemButton
-              component={NavLink}
-              to="/purchase-orders/add"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              {' '}
-              {/* pl: 4 = padding left for indentation */}
-              <ListItemIcon>
-                <AddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Add Purchase Order</ListItemText>
-            </ListItemButton>
+                <ListItemButton
+                  component={NavLink}
+                  to="/suppliers"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                  end
+                >
+                  <ListItemIcon>
+                    <FormatListNumberedRtlIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View Suppliers</ListItemText>
+                </ListItemButton>
+              </List>
+            </Collapse>
+            <Divider />
+          </>
+        )}
 
-            {/* Nested Item 2: Returns */}
-            <ListItemButton
-              component={NavLink}
-              to="/purchase-orders"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-              end
-            >
+        {/* CUSTOMERS - Admin, Manager, Sales */}
+        {canSeeCustomers && (
+          <>
+            <ListItemButton onClick={handleCustomersClick}>
               <ListItemIcon>
-                <FormatListNumberedRtlIcon fontSize="small" />
+                <GroupIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText>View Purchase Orders</ListItemText>
+              <ListItemText primary="Customers" />
+              {openCustomers ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-          </List>
-        </Collapse>
-        {/* Divider goes after the collapsed block */}
-        <Divider />
-        {/* USERS (Regular Item) */}
-        <ListItemButton onClick={handleUsersClick}>
-          <ListItemIcon>
-            <GroupIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Users" />
-          {/* 4. Conditional icon for expand/collapse */}
-          {openUsers ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
-        <Collapse in={openUsers} timeout="auto" unmountOnExit>
-          <List component="div" sx={{ ml: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
-            <ListItemButton
-              component={NavLink}
-              to="/users/add"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              {' '}
-              {/* pl: 4 = padding left for indentation */}
-              <ListItemIcon>
-                <AddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Add New User</ListItemText>
-            </ListItemButton>
+            <Collapse in={openCustomers} timeout="auto" unmountOnExit>
+              <List component="div" sx={{ ml: 4 }} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to="/customers/add"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <AddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add Customer</ListItemText>
+                </ListItemButton>
 
-            {/* Nested Item 2: Returns */}
-            <ListItemButton
-              component={NavLink}
-              to="/users"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-              end
-            >
+                <ListItemButton
+                  component={NavLink}
+                  to="/customers"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                  end
+                >
+                  <ListItemIcon>
+                    <FormatListNumberedRtlIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View Customers</ListItemText>
+                </ListItemButton>
+              </List>
+            </Collapse>
+            <Divider />
+          </>
+        )}
+
+        {/* ORDERS - Admin, Manager, Sales */}
+        {canSeeOrders && (
+          <>
+            <ListItemButton onClick={handleOrdersClick}>
               <ListItemIcon>
-                <FormatListNumberedRtlIcon fontSize="small" />
+                <BorderColorIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText>View All Users</ListItemText>
+              <ListItemText primary="Orders" />
+              {openOrders ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-          </List>
-        </Collapse>
-        <Divider />
-        {/* ACCOUNT (Regular Item) */}
+            <Collapse in={openOrders} timeout="auto" unmountOnExit>
+              <List component="div" sx={{ pl: 4 }} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to="/orders/add"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <AddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add Order</ListItemText>
+                </ListItemButton>
+
+                <ListItemButton
+                  component={NavLink}
+                  to="/orders/"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <FormatListNumberedRtlIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View Orders</ListItemText>
+                </ListItemButton>
+              </List>
+            </Collapse>
+            <Divider />
+          </>
+        )}
+
+        {/* PURCHASE ORDERS - Admin, Manager, Supply Chain */}
+        {canSeePurchaseOrders && (
+          <>
+            <ListItemButton onClick={handlePurchaseClick}>
+              <ListItemIcon>
+                <ShoppingCartIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Purchase Orders" />
+              {openPurchase ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openPurchase} timeout="auto" unmountOnExit>
+              <List component="div" sx={{ ml: 4 }} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to="/purchase-orders/add"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <AddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add Purchase Order</ListItemText>
+                </ListItemButton>
+
+                <ListItemButton
+                  component={NavLink}
+                  to="/purchase-orders"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                  end
+                >
+                  <ListItemIcon>
+                    <FormatListNumberedRtlIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View Purchase Orders</ListItemText>
+                </ListItemButton>
+              </List>
+            </Collapse>
+            <Divider />
+          </>
+        )}
+
+        {/* USERS - Only Admin & Manager */}
+        {canSeeUsers && (
+          <>
+            <ListItemButton onClick={handleUsersClick}>
+              <ListItemIcon>
+                <GroupIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Users" />
+              {openUsers ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openUsers} timeout="auto" unmountOnExit>
+              <List component="div" sx={{ ml: 4 }} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to="/users/add"
+                  sx={{
+                    '&.active': {
+                      bgcolor: 'teal.500',
+                      color: 'white',
+                      '& .MuiListItemIcon-root': { color: 'white' },
+                      fontWeight: 'medium',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <AddIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add New User</ListItemText>
+                </ListItemButton>
+              </List>
+            </Collapse>
+            <Divider />
+          </>
+        )}
+
+        {/* ACCOUNT - Everyone */}
         <ListItemButton onClick={handleAccountsClick}>
           <ListItemIcon>
             <AccountCircleIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Account" />
-          {/* 4. Conditional icon for expand/collapse */}
           {openAccount ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
-        {/* 5. Collapse component for the nested options */}
         <Collapse in={openAccount} timeout="auto" unmountOnExit>
           <List component="div" sx={{ ml: 4 }} disablePadding>
-            {/* Nested Item 1: Invoices */}
-            <ListItemButton
-              component={NavLink}
-              to="/user-profile"
-              sx={{
-                '&.active': {
-                  // ← This gives blue background when active
-                  bgcolor: 'teal.500',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': { color: 'white' },
-                  fontWeight: 'medium',
-                },
-              }}
-            >
-              {' '}
-              {/* pl: 4 = padding left for indentation */}
-              <ListItemIcon>
-                <VisibilityIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>View Profile</ListItemText>
-            </ListItemButton>
-
-            {/* Nested Item 2: Returns */}
             <ListItemButton
               component={NavLink}
               to="/logout"
               sx={{
                 '&.active': {
-                  // ← This gives blue background when active
                   bgcolor: 'teal.500',
                   color: 'white',
                   '& .MuiListItemIcon-root': { color: 'white' },
